@@ -1,0 +1,11 @@
+
+> Nobo@3.0.0 dev
+> next dev --port 3011
+
+   ▲ Next.js 15.1.6
+   - Local:        http://localhost:3011
+   - Network:      http://10.2.0.208:3011
+   - Environments: .env.local, .env.development
+
+ ✓ Starting...
+ ✓ Ready in 5.6s

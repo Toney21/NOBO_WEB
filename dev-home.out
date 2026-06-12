@@ -1,0 +1,13 @@
+
+> Nobo@3.0.0 dev
+> next dev --port 3012
+
+   ▲ Next.js 15.1.6
+   - Local:        http://localhost:3012
+   - Network:      http://10.2.0.208:3012
+   - Environments: .env.local, .env.development
+
+ ✓ Starting...
+ ✓ Ready in 8.6s
+ ○ Compiling /home ...
+ ✓ Compiled /home in 68.1s (4590 modules)

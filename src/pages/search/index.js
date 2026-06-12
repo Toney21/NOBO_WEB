@@ -1,0 +1,52 @@
+import React from 'react'
+import { NoSsr } from '@mui/material'
+import { CustomHeader } from '@/api/Headers'
+import HeroSectionWithSearch from '../../components/home/hero-section-with-search'
+import { useRouter } from 'next/router'
+import ProductSearchPage from '../../components/products-page/ProductSearchPage'
+import CustomContainer from '../../components/container'
+import ScrollToTop from '../../components/scroll-top/ScrollToTop'
+import HomeGuard from '../../components/home-guard/HomeGuard'
+import {
+    normalizeBackendBaseUrl,
+    resolveRequestOrigin,
+} from '@/utils/runtimeUrls'
+
+const SearchPage = ({ configData }) => {
+    const router = useRouter()
+    const { query } = router.query
+    return (
+        <>
+            <HomeGuard>
+                <NoSsr>
+                    <ScrollToTop />
+                    <HeroSectionWithSearch query={query} />
+                    <CustomContainer>
+                        <ProductSearchPage query={query} configData={configData} />
+                    </CustomContainer>
+                </NoSsr>
+            </HomeGuard>
+        </>
+    )
+}
+
+export default SearchPage
+export const getServerSideProps = async ({ req }) => {
+    const baseUrl = normalizeBackendBaseUrl(process.env.NEXT_PUBLIC_BASE_URL)
+    const configRes = await fetch(
+        `${baseUrl}/api/v1/config`,
+        {
+            method: 'GET',
+            headers: {
+                ...CustomHeader,
+                origin: resolveRequestOrigin(req, process.env.NEXT_CLIENT_HOST_URL),
+            },
+        }
+    )
+    const config = await configRes.json()
+    return {
+        props: {
+            configData: config,
+        },
+    }
+}
