@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Box, IconButton, InputBase, Paper, Stack, Typography } from '@mui/material'
+import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined'
 import SearchIcon from '@mui/icons-material/Search'
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import { useTheme } from '@mui/material/styles'
 import { useRouter } from 'next/router'
 import { noboPremium } from '@/theme/nobo-premium-tokens'
 import { openLisaExperience } from '@/utils/lisaBackend'
@@ -16,9 +17,11 @@ const quickActions = [
 const recentSearches = ['Grilled chicken', 'Sushi', 'Artcaffe']
 
 const PremiumSearchBar = ({ compact = false }) => {
+    const theme = useTheme()
     const router = useRouter()
     const [value, setValue] = useState('')
     const [focused, setFocused] = useState(false)
+    const isLight = theme.palette.mode === 'light'
 
     const handleSubmit = (event) => {
         event.preventDefault()
@@ -42,17 +45,17 @@ const PremiumSearchBar = ({ compact = false }) => {
                     gap: 1,
                     px: 1.2,
                     borderRadius: noboPremium.radius.pill,
-                    background: 'rgba(255,255,255,0.07)',
-                    border: '1px solid rgba(232,200,120,0.16)',
-                    color: noboPremium.color.ivory,
+                    background: isLight ? '#FFFFFF' : 'rgba(255,255,255,0.055)',
+                    border: isLight
+                        ? '1px solid rgba(3,28,58,0.12)'
+                        : '1px solid rgba(232,200,120,0.14)',
+                    color: isLight ? noboPremium.color.navy900 : noboPremium.color.ivory,
                     transition: `box-shadow ${noboPremium.motion.base} ${noboPremium.motion.ease}, border-color ${noboPremium.motion.base} ${noboPremium.motion.ease}`,
                     boxShadow: focused ? noboPremium.shadow.goldGlow : 'none',
-                    borderColor: focused
-                        ? 'rgba(232,200,120,0.32)'
-                        : 'rgba(232,200,120,0.16)',
+                    borderColor: focused ? 'rgba(214,162,58,0.42)' : undefined,
                 }}
             >
-                <SearchIcon sx={{ color: noboPremium.color.gold400, ml: 0.5 }} />
+                <SearchIcon sx={{ color: isLight ? '#A7A19A' : 'rgba(246,239,229,0.52)', ml: 0.5, fontSize: 20 }} />
                 <InputBase
                     value={value}
                     onChange={(event) => setValue(event.target.value)}
@@ -62,10 +65,10 @@ const PremiumSearchBar = ({ compact = false }) => {
                     inputProps={{ 'aria-label': 'Search meals, restaurants, cuisines, or ask Lisa' }}
                     sx={{
                         flex: 1,
-                        color: noboPremium.color.ivory,
-                        fontSize: { xs: '0.9rem', md: '0.95rem' },
+                        color: isLight ? noboPremium.color.navy900 : noboPremium.color.ivory,
+                        fontSize: { xs: '0.82rem', md: '0.86rem' },
                         '& input::placeholder': {
-                            color: 'rgba(246,239,229,0.62)',
+                            color: isLight ? '#A7A19A' : 'rgba(246,239,229,0.48)',
                             opacity: 1,
                         },
                     }}
@@ -76,16 +79,14 @@ const PremiumSearchBar = ({ compact = false }) => {
                     sx={{
                         width: 40,
                         height: 40,
-                        color: noboPremium.color.navy900,
-                        background:
-                            'linear-gradient(135deg, #E8C878 0%, #D6A23A 48%, #A87521 100%)',
+                        color: isLight ? '#8B8B8B' : 'rgba(246,239,229,0.72)',
+                        background: 'transparent',
                         '&:hover': {
-                            background:
-                                'linear-gradient(135deg, #F2D990 0%, #D6A23A 52%, #A87521 100%)',
+                            background: isLight ? 'rgba(214,162,58,0.08)' : 'rgba(232,200,120,0.08)',
                         },
                     }}
                 >
-                    <ArrowForwardIcon fontSize="small" />
+                    <TuneOutlinedIcon fontSize="small" />
                 </IconButton>
             </Paper>
 

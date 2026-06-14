@@ -1,5 +1,6 @@
 import { Box, Button, Stack, Typography, useMediaQuery } from '@mui/material'
 import LocalMallOutlinedIcon from '@mui/icons-material/LocalMallOutlined'
+import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined'
 import { useTheme } from '@mui/material/styles'
 import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
@@ -20,6 +21,7 @@ const FloatingBasketPill = () => {
 
     const currency = global?.currency_symbol || 'KES'
     const total = getCartTotal(cartList)
+    const isLight = theme.palette.mode === 'light'
 
     return (
         <Box
@@ -38,14 +40,13 @@ const FloatingBasketPill = () => {
                     minHeight: isMobile ? 56 : 54,
                     px: 2.2,
                     borderRadius: noboPremium.radius.pill,
-                    background: 'rgba(16,26,43,0.92)',
-                    border: '1px solid rgba(232,200,120,0.22)',
+                    background: '#E5AE36',
+                    border: '1px solid rgba(111,72,14,0.28)',
                     backdropFilter: 'blur(16px)',
-                    color: noboPremium.color.ivory,
-                    boxShadow: noboPremium.shadow.cardDark,
+                    color: noboPremium.color.navy900,
+                    boxShadow: isLight ? '0 14px 34px rgba(111,72,14,0.18)' : noboPremium.shadow.cardDark,
                     '&:hover': {
-                        background: 'rgba(22,34,56,0.96)',
-                        borderColor: 'rgba(232,200,120,0.34)',
+                        background: '#F0BC45',
                     },
                 }}
             >
@@ -53,14 +54,13 @@ const FloatingBasketPill = () => {
                     <Stack direction="row" alignItems="center" spacing={1}>
                         <LocalMallOutlinedIcon />
                         <Typography sx={{ fontWeight: 800 }}>
-                            {itemCount} {itemCount === 1 ? 'item' : 'items'} - {currency} {total}
+                            Basket - {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.72rem', fontWeight: 700 }}>
+                            {currency} {total}
                         </Typography>
                     </Stack>
-                    {isMobile && (
-                        <Typography sx={{ color: noboPremium.color.gold400, fontWeight: 900 }}>
-                            Checkout
-                        </Typography>
-                    )}
+                    <ChevronRightOutlinedIcon />
                 </Stack>
             </Button>
         </Box>

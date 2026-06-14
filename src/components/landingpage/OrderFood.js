@@ -18,7 +18,7 @@ const OrderFood = ({ stepperSection }) => {
     const stepperContent = {
         ...stepperSection?.stepper_content,
         stepper_title_1: t('Tell us where you are'),
-        stepper_title_2: t('Browse options or let Lisa choose'),
+        stepper_title_2: t('Browse options or ask Lisa'),
         stepper_title_3: t('Order in seconds'),
         stepper_title_4: t('Enjoy your meal, right on time'),
     }

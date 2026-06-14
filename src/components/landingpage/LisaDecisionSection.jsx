@@ -3,7 +3,7 @@ import { Button, Grid, Stack, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import CustomContainer from '@/components/container'
-import { openLisaBackend } from '@/utils/lisaBackend'
+import { openLisaExperience } from '@/utils/lisaBackend'
 import AuthModal from '@/components/auth'
 import { useSelector } from 'react-redux'
 import { getToken } from '@/utils/localStorage'
@@ -18,7 +18,7 @@ const LisaDecisionSection = () => {
 
     const handleLisaProfileSetup = () => {
         if (hasToken()) {
-            openLisaBackend('settings')
+            openLisaExperience('home')
             return
         }
 
@@ -100,7 +100,7 @@ const LisaDecisionSection = () => {
                     modalFor={modalFor}
                     setModalFor={setModalFor}
                     handleClose={() => setAuthModalOpen(false)}
-                    onAuthSuccess={() => openLisaBackend('settings')}
+                    onAuthSuccess={() => openLisaExperience('home')}
                 />
             )}
         </>

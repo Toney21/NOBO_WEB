@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
-import { Inter, Playfair_Display } from 'next/font/google'
+import { Playfair_Display, Roboto } from 'next/font/google'
 import Router, { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 import nProgress from 'nprogress'
@@ -34,7 +34,7 @@ const playfair = Playfair_Display({
   variable: '--font-heading',
 })
 
-const inter = Inter({
+const roboto = Roboto({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-body',
@@ -110,7 +110,7 @@ const App = ({ Component, pageProps, emotionCache = clientSideEmotionCache }) =>
 
                   <WrapperForApp
                     pathname={router.pathname}
-                    className={`${playfair.variable} ${inter.variable}`}
+                    className={`${playfair.variable} ${roboto.variable}`}
                   >
                     <NoSsr>
                       <ScrollToTop />

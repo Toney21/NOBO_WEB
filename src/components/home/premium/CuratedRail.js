@@ -1,20 +1,38 @@
 import { Box, Button, Stack, Typography } from '@mui/material'
 import { useRouter } from 'next/router'
+import { useTheme } from '@mui/material/styles'
 import { noboPremium } from '@/theme/nobo-premium-tokens'
 import PremiumRestaurantCard from './PremiumRestaurantCard'
 
-const CuratedRail = ({ title, subtitle, items = [] }) => {
+const momentFallback = [
+    { id: 'truffle', name: 'Truffle Chicken Tagliatelle', subtitle: 'Tatu Restaurant', delivery_time: '30-40 min', image_full_url: '/static/Menu/image 18.png' },
+    { id: 'salmon-roll', name: 'Salmon Aburi Roll', subtitle: 'Zuka', delivery_time: '25-35 min', image_full_url: '/static/Menu/image 19.png' },
+    { id: 'wagyu', name: 'Wagyu Cheeseburger', subtitle: 'Capital Burger', delivery_time: '20-30 min', image_full_url: '/static/Menu/image 20.png' },
+    { id: 'mousse', name: '70% Chocolate Mousse', subtitle: 'Kesh Kesh Cafe', delivery_time: '20-30 min', image_full_url: '/static/Menu/image 21.png' },
+]
+
+const restaurantFallback = [
+    { id: 'tatu', name: 'Tatu Restaurant', subtitle: 'Mediterranean - $$$', rating: '4.8', review_count: '1.2k', delivery_time: '30-40 min', image_full_url: '/static/Menu/resturant.png' },
+    { id: 'artcaffe', name: 'Artcaffe Market', subtitle: 'International - $$', rating: '4.6', review_count: '980', delivery_time: '30-40 min', image_full_url: '/static/Menu/Rectangle 8256.png' },
+    { id: 'carnivore', name: 'The Carnivore', subtitle: 'Steakhouse - $$$', rating: '4.7', review_count: '1.1k', delivery_time: '35-45 min', image_full_url: '/static/Menu/Rectangle 8262 (1).png' },
+    { id: 'zuka', name: 'Zuka', subtitle: 'Asian - $$$', rating: '4.7', review_count: '815', delivery_time: '25-35 min', image_full_url: '/static/Menu/Rectangle 8262.png' },
+]
+
+const CuratedRail = ({ title, subtitle, items = [], variant = 'meal' }) => {
+    const theme = useTheme()
     const router = useRouter()
-    const visibleItems = items?.slice?.(0, 10) || []
+    const isLight = theme.palette.mode === 'light'
+    const fallback = variant === 'restaurant' ? restaurantFallback : momentFallback
+    const visibleItems = items?.length > 0 ? items.slice(0, variant === 'restaurant' ? 4 : 4) : fallback
 
     return (
-        <Box sx={{ maxWidth: 1240, mx: 'auto', px: 'clamp(16px, 4vw, 40px)', py: { xs: 3, md: 4 } }}>
-            <Stack direction="row" alignItems="flex-end" justifyContent="space-between" spacing={2} sx={{ mb: 2 }}>
-                <Stack spacing={0.6}>
-                    <Typography sx={{ color: noboPremium.color.ivory, fontFamily: 'var(--font-heading)', fontSize: { xs: '1.7rem', md: '2.25rem' }, fontWeight: 700 }}>
+        <Box sx={{ maxWidth: 1248, mx: 'auto', px: 'clamp(14px, 4vw, 32px)', py: { xs: 1.6, md: 1.4 } }}>
+            <Stack direction="row" alignItems="flex-end" justifyContent="space-between" spacing={2} sx={{ mb: 0.8, px: { xs: 0, md: 1 } }}>
+                <Stack spacing={0.15}>
+                    <Typography sx={{ color: isLight ? noboPremium.color.navy900 : noboPremium.color.ivory, fontFamily: 'var(--font-heading)', fontSize: { xs: '1.35rem', md: '1.55rem' }, fontWeight: 700, lineHeight: 1.08 }}>
                         {title}
                     </Typography>
-                    <Typography sx={{ color: noboPremium.color.textMutedDark, fontSize: { xs: '0.92rem', md: '1rem' } }}>
+                    <Typography sx={{ color: isLight ? '#746B5F' : noboPremium.color.textMutedDark, fontSize: '0.78rem' }}>
                         {subtitle}
                     </Typography>
                 </Stack>
@@ -24,7 +42,8 @@ const CuratedRail = ({ title, subtitle, items = [] }) => {
                         minHeight: 44,
                         flex: '0 0 auto',
                         borderRadius: noboPremium.radius.pill,
-                        color: noboPremium.color.gold400,
+                        color: noboPremium.color.gold500,
+                        fontSize: '0.75rem',
                     }}
                 >
                     View all
@@ -36,8 +55,10 @@ const CuratedRail = ({ title, subtitle, items = [] }) => {
                     sx={{
                         display: 'grid',
                         gridAutoFlow: 'column',
-                        gridAutoColumns: { xs: '82%', sm: '42%', md: '30%', lg: '23.5%' },
-                        gap: 2,
+                        gridAutoColumns: variant === 'restaurant'
+                            ? { xs: '82%', sm: '48%', md: '24.2%' }
+                            : { xs: '82%', sm: '46%', md: '24.2%' },
+                        gap: { xs: 1.3, md: 1.6 },
                         overflowX: 'auto',
                         scrollSnapType: 'x mandatory',
                         pb: 1,
@@ -53,6 +74,7 @@ const CuratedRail = ({ title, subtitle, items = [] }) => {
                         <PremiumRestaurantCard
                             key={item?.id || item?.slug || `${title}-${index}`}
                             item={item}
+                            variant={variant}
                             onClick={() => item?.restaurant?.slug || item?.restaurant_id
                                 ? router.push({
                                     pathname: `/restaurants/${item?.restaurant?.slug || item?.restaurant_id}`,

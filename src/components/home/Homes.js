@@ -70,7 +70,6 @@ import { getToken } from '@/utils/localStorage'
 import PremiumHomeShell from './premium/PremiumHomeShell'
 import PremiumHeader from './premium/PremiumHeader'
 import ConciergeHero from './premium/ConciergeHero'
-import LisaRecommendationPanel from './premium/LisaRecommendationPanel'
 import CuratedRail from './premium/CuratedRail'
 import MinimalCategoryRail from './premium/MinimalCategoryRail'
 import FloatingBasketPill from './premium/FloatingBasketPill'
@@ -356,21 +355,18 @@ const Homes = ({ configData }) => {
                 <PremiumHomeShell>
                     <PremiumHeader configData={configData} />
                     <ConciergeHero configData={configData} />
-                    <LisaRecommendationPanel
-                        popularFood={popularFood}
-                        bestReviewedFoods={bestReviewedFoods}
-                        configData={configData}
-                    />
                     <CuratedRail
                         title="For this moment"
-                        subtitle="Selected around your timing, taste, and location."
+                        subtitle="Curated picks, just for you."
                         items={popularFood}
+                        variant="meal"
                     />
                     <MinimalCategoryRail />
                     <CuratedRail
-                        title="Highly rated near you"
-                        subtitle="Reliable restaurants with consistent service."
+                        title="Near you"
+                        subtitle="Top-rated restaurants close by."
                         items={bestReviewedFoods}
+                        variant="restaurant"
                     />
                     <FloatingBasketPill />
                 </PremiumHomeShell>

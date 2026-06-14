@@ -137,6 +137,12 @@ const customColor = {
     fifteen: text.secondary,
 }
 export const darkThemeOptions = {
+    typography: {
+        allVariants: {
+            fontFamily: 'var(--font-body), Roboto, Public Sans, sans-serif',
+            textTransform: 'none',
+        },
+    },
     components: {
         MuiButton: {
             styleOverrides: {

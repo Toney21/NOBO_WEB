@@ -1,4 +1,7 @@
-import { Box, Stack, Typography } from '@mui/material'
+import { Box, IconButton, Stack, Typography } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
+import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
+import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined'
 import StarRoundedIcon from '@mui/icons-material/StarRounded'
 import { noboPremium } from '@/theme/nobo-premium-tokens'
 
@@ -46,12 +49,78 @@ const PremiumImageSkeleton = ({ title }) => (
     </Box>
 )
 
-const PremiumRestaurantCard = ({ item, onClick }) => {
+const PremiumRestaurantCard = ({ item, onClick, variant = 'meal' }) => {
+    const theme = useTheme()
+    const isLight = theme.palette.mode === 'light'
     const title = getPremiumItemTitle(item)
     const image = getPremiumItemImage(item)
     const rating = item?.avg_rating || item?.rating || item?.restaurant?.avg_rating || '4.8'
     const time = item?.restaurant?.delivery_time || item?.delivery_time || '28-35 min'
-    const match = item?.lisa_match || Math.min(96, 88 + (Number(item?.id || 1) % 8))
+    const subtitle = item?.subtitle || getCuisine(item)
+    const reviewCount = item?.review_count || item?.rating_count || '1,241'
+
+    if (variant === 'restaurant') {
+        return (
+            <Box
+                component="button"
+                type="button"
+                onClick={onClick}
+                sx={{
+                    width: '100%',
+                    minWidth: 0,
+                    p: 0.7,
+                    border: isLight ? '1px solid rgba(3,28,58,0.08)' : '1px solid rgba(232,200,120,0.10)',
+                    borderRadius: 1.8,
+                    overflow: 'hidden',
+                    background: isLight ? '#FFFFFF' : 'rgba(16,26,43,0.78)',
+                    boxShadow: isLight ? '0 10px 26px rgba(3,28,58,0.07)' : 'none',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    transition: `transform ${noboPremium.motion.base} ${noboPremium.motion.ease}, box-shadow ${noboPremium.motion.base} ${noboPremium.motion.ease}`,
+                    '&:hover, &:focus-visible': {
+                        outline: 'none',
+                        transform: 'translateY(-2px)',
+                        boxShadow: isLight ? '0 16px 34px rgba(3,28,58,0.1)' : '0 18px 48px rgba(0,0,0,0.24)',
+                    },
+                }}
+            >
+                <Stack direction="row" spacing={1.2} alignItems="center">
+                    <Box sx={{ width: 96, height: 70, borderRadius: 1.3, overflow: 'hidden', flex: '0 0 auto' }}>
+                        {image ? (
+                            <Box component="img" src={image} alt={title} loading="lazy" sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                        ) : (
+                            <PremiumImageSkeleton title={title} />
+                        )}
+                    </Box>
+                    <Stack spacing={0.35} sx={{ minWidth: 0, flex: 1 }}>
+                        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+                            <Typography noWrap sx={{ color: isLight ? noboPremium.color.navy900 : noboPremium.color.ivory, fontWeight: 800, fontSize: '0.86rem' }}>
+                                {title}
+                            </Typography>
+                            <FavoriteBorderOutlinedIcon sx={{ color: isLight ? '#746B5F' : 'rgba(246,239,229,0.72)', fontSize: 18 }} />
+                        </Stack>
+                        <Typography noWrap sx={{ color: isLight ? '#746B5F' : noboPremium.color.textMutedDark, fontSize: '0.75rem' }}>
+                            {subtitle}
+                        </Typography>
+                        <Stack direction="row" spacing={0.9} alignItems="center">
+                            <Stack direction="row" spacing={0.25} alignItems="center">
+                                <StarRoundedIcon sx={{ color: '#E5AE36', fontSize: 14 }} />
+                                <Typography sx={{ color: isLight ? noboPremium.color.navy900 : noboPremium.color.ivory, fontSize: '0.72rem', fontWeight: 700 }}>
+                                    {rating} ({reviewCount})
+                                </Typography>
+                            </Stack>
+                        </Stack>
+                        <Stack direction="row" spacing={0.35} alignItems="center">
+                            <AccessTimeOutlinedIcon sx={{ color: isLight ? '#746B5F' : noboPremium.color.textMutedDark, fontSize: 14 }} />
+                            <Typography sx={{ color: isLight ? '#746B5F' : noboPremium.color.textMutedDark, fontSize: '0.72rem' }}>
+                                {time}
+                            </Typography>
+                        </Stack>
+                    </Stack>
+                </Stack>
+            </Box>
+        )
+    }
 
     return (
         <Box
@@ -62,10 +131,11 @@ const PremiumRestaurantCard = ({ item, onClick }) => {
                 width: '100%',
                 minWidth: 0,
                 p: 0,
-                border: '1px solid rgba(232,200,120,0.12)',
-                borderRadius: { xs: 3.2, md: 3.5 },
+                border: isLight ? '1px solid rgba(3,28,58,0.08)' : '1px solid rgba(232,200,120,0.10)',
+                borderRadius: 1.8,
                 overflow: 'hidden',
-                background: noboPremium.color.navy700,
+                background: isLight ? '#FFFFFF' : 'rgba(16,26,43,0.78)',
+                boxShadow: isLight ? '0 10px 26px rgba(3,28,58,0.08)' : 'none',
                 textAlign: 'left',
                 cursor: 'pointer',
                 transition: `transform ${noboPremium.motion.base} ${noboPremium.motion.ease}, border-color ${noboPremium.motion.base} ${noboPremium.motion.ease}, box-shadow ${noboPremium.motion.base} ${noboPremium.motion.ease}`,
@@ -73,11 +143,11 @@ const PremiumRestaurantCard = ({ item, onClick }) => {
                     outline: 'none',
                     transform: 'translateY(-3px)',
                     borderColor: 'rgba(232,200,120,0.28)',
-                    boxShadow: '0 20px 60px rgba(0,0,0,0.28)',
+                    boxShadow: isLight ? '0 18px 38px rgba(3,28,58,0.12)' : '0 20px 60px rgba(0,0,0,0.28)',
                 },
             }}
         >
-            <Box sx={{ aspectRatio: '4 / 3', overflow: 'hidden' }}>
+            <Box sx={{ aspectRatio: '2.18 / 1', overflow: 'hidden', position: 'relative' }}>
                 {image ? (
                     <Box
                         component="img"
@@ -94,28 +164,37 @@ const PremiumRestaurantCard = ({ item, onClick }) => {
                 ) : (
                     <PremiumImageSkeleton title={title} />
                 )}
+                <IconButton
+                    aria-label={`Save ${title}`}
+                    sx={{
+                        position: 'absolute',
+                        top: 7,
+                        right: 7,
+                        width: 28,
+                        height: 28,
+                        color: '#fff',
+                        background: 'rgba(0,0,0,0.34)',
+                        '&:hover': { background: 'rgba(0,0,0,0.48)' },
+                    }}
+                >
+                    <FavoriteBorderOutlinedIcon sx={{ fontSize: 18 }} />
+                </IconButton>
             </Box>
-            <Stack spacing={1.1} sx={{ p: 2 }}>
-                <Typography sx={{ color: noboPremium.color.ivory, fontWeight: 800, fontSize: '1.02rem', lineHeight: 1.2 }}>
+            <Stack spacing={0.4} sx={{ p: 1.15 }}>
+                <Typography noWrap sx={{ color: isLight ? noboPremium.color.navy900 : noboPremium.color.ivory, fontWeight: 800, fontSize: '0.8rem', lineHeight: 1.2 }}>
                     {title}
                 </Typography>
-                <Typography sx={{ color: noboPremium.color.textMutedDark, fontSize: '0.86rem', lineHeight: 1.45 }}>
-                    {getCuisine(item)} - {getArea(item)}
-                </Typography>
                 <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-                    <Typography sx={{ color: noboPremium.color.textMutedDark, fontSize: '0.84rem' }}>
-                        {time}
+                    <Typography noWrap sx={{ color: isLight ? '#746B5F' : noboPremium.color.textMutedDark, fontSize: '0.72rem' }}>
+                        {subtitle}
                     </Typography>
-                    <Stack direction="row" alignItems="center" spacing={0.4}>
-                        <StarRoundedIcon sx={{ color: noboPremium.color.gold400, fontSize: 17 }} />
-                        <Typography sx={{ color: noboPremium.color.ivory, fontWeight: 700, fontSize: '0.86rem' }}>
-                            {rating}
+                    <Stack direction="row" alignItems="center" spacing={0.35}>
+                        <AccessTimeOutlinedIcon sx={{ color: isLight ? '#746B5F' : noboPremium.color.textMutedDark, fontSize: 14 }} />
+                        <Typography sx={{ color: isLight ? '#746B5F' : noboPremium.color.textMutedDark, fontSize: '0.72rem', whiteSpace: 'nowrap' }}>
+                        {time}
                         </Typography>
                     </Stack>
                 </Stack>
-                <Box sx={{ width: 'fit-content', px: 1.1, py: 0.55, borderRadius: noboPremium.radius.pill, background: 'rgba(232,200,120,0.1)', color: noboPremium.color.gold400, fontWeight: 800, fontSize: '0.76rem' }}>
-                    Lisa match {match}%
-                </Box>
             </Stack>
         </Box>
     )

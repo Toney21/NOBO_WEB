@@ -300,11 +300,11 @@ export const baseThemeOptions = {
     },
     typography: {
         button: {
-            fontFamily: 'var(--font-body), Inter, Public Sans, sans-serif',
+            fontFamily: 'var(--font-body), Roboto, Public Sans, sans-serif',
             fontWeight: 600,
             textTransform: 'none',
         },
-        fontFamily: 'var(--font-body), Inter, Public Sans, sans-serif',
+        fontFamily: 'var(--font-body), Roboto, Public Sans, sans-serif',
         textTransform: 'none',
 
         body1: {

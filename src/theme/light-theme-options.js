@@ -141,7 +141,7 @@ const text = {
 export const lightThemeOptions = {
     typography: {
         allVariants: {
-            fontFamily: 'var(--font-body), Inter, Public Sans, sans-serif',
+            fontFamily: 'var(--font-body), Roboto, Public Sans, sans-serif',
             textTransform: 'none',
         },
     },

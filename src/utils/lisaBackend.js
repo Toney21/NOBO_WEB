@@ -6,13 +6,40 @@ import {
     setToSessionStorage,
 } from '@/utils/localStorage'
 
-const lisaBackendBaseUrl =
-    process.env.NEXT_PUBLIC_LISA_BACKEND_BASE_URL ||
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    (typeof window !== 'undefined' ? window.location.origin : '') ||
-    'https://www.nobo.co.ke'
+const isLocalUrl = (value = '') => {
+    try {
+        const url = new URL(value)
+        return url.hostname === 'localhost' || url.hostname === '127.0.0.1'
+    } catch {
+        return false
+    }
+}
 
-const cleanBaseUrl = lisaBackendBaseUrl.replace(/\/+$/, '')
+const isBrowserOnLocalhost = () =>
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1')
+
+const resolveLisaBackendBaseUrl = () => {
+    const candidates = [
+        process.env.NEXT_PUBLIC_LISA_BACKEND_BASE_URL,
+        process.env.NEXT_PUBLIC_BASE_URL,
+        'https://www.nobo.co.ke',
+    ]
+
+    for (const candidate of candidates) {
+        const value = `${candidate || ''}`.trim().replace(/\/+$/, '')
+        if (!value) continue
+        if (isLocalUrl(value) && !isBrowserOnLocalhost()) continue
+        if (/^http:\/\//i.test(value) && !isLocalUrl(value)) continue
+
+        return value
+    }
+
+    return 'https://www.nobo.co.ke'
+}
+
+const cleanBaseUrl = resolveLisaBackendBaseUrl()
 const lisaProfileCacheTtlMs = 30000
 let lisaProfileCache = null
 let lisaProfileCacheAt = 0
@@ -106,8 +133,7 @@ export const hasLisaHealthChoices = (profile = {}) => {
     )
 }
 
-export const shouldRouteLisaHomeToSettings = (profile = {}) =>
-    !hasLisaGoalSetup(profile)
+export const shouldRouteLisaHomeToSettings = () => false
 
 const getLisaRoutedPath = (path = 'home', profile = {}) => {
     const { basePath, search } = splitLisaPath(path)
@@ -126,7 +152,13 @@ export const getLisaBackendUrl = (path = 'home', { includeToken = true } = {}) =
         return url
     }
 
-    return url
+    const token = readLisaToken()
+    if (!token) {
+        return url
+    }
+
+    const separator = url.includes('?') ? '&' : '?'
+    return `${url}${separator}token=${encodeURIComponent(token)}`
 }
 
 export const openLisaBackend = (path = 'home', options) => {

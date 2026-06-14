@@ -5,7 +5,7 @@ import { useTheme } from '@mui/material/styles'
 import HeroLocationForm from './HeroLocationForm'
 import CustomContainer from '../container'
 import CustomNextImage from '@/components/CustomNextImage'
-import { openLisaBackend } from '@/utils/lisaBackend'
+import { openLisaExperience } from '@/utils/lisaBackend'
 import AuthModal from '@/components/auth'
 import { useSelector } from 'react-redux'
 import { getToken } from '@/utils/localStorage'
@@ -15,15 +15,16 @@ const HeroSection = ({ handleModalClose, banner_section_image }) => {
     const [authModalOpen, setAuthModalOpen] = useState(false)
     const [modalFor, setModalFor] = useState('sign-up')
     const { token } = useSelector((state) => state.userToken)
-    const heroTitle = 'Order smarter. Eat better. Every time.'
+    const isLight = theme.palette.mode === 'light'
+    const heroTitle = 'Welcome to NOBO'
     const heroSubtitle =
-        'NOBO brings the best meals around you into one place, or lets Lisa choose for you based on your taste, timing, and routine.'
+        'A premium food experience for Nairobi. Find restaurants near you, order with less effort, or let Lisa guide your next meal.'
     const hasToken = () =>
         token || getToken()
 
     const handleLisaProfileSetup = () => {
         if (hasToken()) {
-            openLisaBackend('settings')
+            openLisaExperience('home')
             return
         }
 
@@ -38,9 +39,18 @@ const HeroSection = ({ handleModalClose, banner_section_image }) => {
                     sx={{
                         position: 'relative',
                         zIndex: 1,
-                        borderRadius: '10px',
+                        borderRadius: { xs: '20px', md: '28px' },
                         overflow: 'hidden',
                         marginTop: { xs: '56px', md: '76px' },
+                        border: isLight
+                            ? '1px solid rgba(214,162,58,0.18)'
+                            : '1px solid rgba(232,200,120,0.14)',
+                        background: isLight
+                            ? 'linear-gradient(180deg, #FFFFFF 0%, #FFFDF8 100%)'
+                            : 'linear-gradient(145deg, rgba(7,17,31,0.96), rgba(3,28,58,0.98))',
+                        boxShadow: isLight
+                            ? '0 18px 56px rgba(3,28,58,0.08)'
+                            : '0 24px 80px rgba(0,0,0,0.28)',
                     }}
                 >
                     <Box
@@ -58,7 +68,9 @@ const HeroSection = ({ handleModalClose, banner_section_image }) => {
                                 left: 0,
                                 width: '100%',
                                 height: '100%',
-                                backgroundColor: 'rgba(0, 0, 0, 0.42)',
+                                background: isLight
+                                    ? 'linear-gradient(90deg, rgba(255,253,248,0.96) 0%, rgba(255,253,248,0.82) 48%, rgba(255,253,248,0.38) 100%)'
+                                    : 'linear-gradient(90deg, rgba(6,11,20,0.94) 0%, rgba(6,11,20,0.82) 48%, rgba(6,11,20,0.38) 100%)',
                             },
                             img: {
                                 height: '100%',
@@ -78,35 +90,33 @@ const HeroSection = ({ handleModalClose, banner_section_image }) => {
                         width="100%"
                         paddingBottom="80px"
                         justifyContent="center"
-                        alignItems="center"
+                        alignItems={{ xs: 'center', md: 'flex-start' }}
                         paddingTop="30px"
                     >
                         <CustomContainer>
                             <Typography
-                                fontSize={{ xs: '28px', sm: '45px' }}
+                                fontSize={{ xs: '34px', sm: '56px' }}
                                 fontWeight="700"
                                 component="h1"
-                                color={theme.palette.whiteText.main}
+                                color={isLight ? theme.palette.secondary.main : theme.palette.whiteText.main}
                                 letterSpacing="0"
-                                textAlign="center"
+                                textAlign={{ xs: 'center', md: 'left' }}
                                 marginBottom="10px"
+                                fontFamily="var(--font-heading)"
                             >
                                 {heroTitle}
                             </Typography>
                             <Box
                                 sx={{
-                                    backgroundColor: theme.palette.background.paper,
                                     maxWidth: 742,
-                                    marginInline: 'auto',
-                                    borderRadius: '8px',
-                                    padding: { xs: '1.5rem 1rem', sm: '1.8rem' },
+                                    marginInline: { xs: 'auto', md: 0 },
                                 }}
                             >
                                 <Typography
                                     fontSize={{ xs: '16px', sm: '20px' }}
                                     component="p"
                                     fontWeight={500}
-                                    textAlign="center"
+                                    textAlign={{ xs: 'center', md: 'left' }}
                                     color={theme.palette.text.primary}
                                 >
                                     {heroSubtitle}
@@ -118,7 +128,7 @@ const HeroSection = ({ handleModalClose, banner_section_image }) => {
                                     mobileview="true"
                                     handleModalClose={handleModalClose}
                                     place_holder_search_text="Enter your location to see what's available near you"
-                                    submitLabel="Find food near you"
+                                    submitLabel="Start ordering"
                                 />
                                 <Stack alignItems="center" mt={1.5}>
                                     <Button
@@ -129,7 +139,7 @@ const HeroSection = ({ handleModalClose, banner_section_image }) => {
                                             color: theme.palette.primary.main,
                                         }}
                                     >
-                                        Let Lisa choose for me
+                                        Ask Lisa
                                     </Button>
                                 </Stack>
                             </Box>
@@ -143,7 +153,7 @@ const HeroSection = ({ handleModalClose, banner_section_image }) => {
                     modalFor={modalFor}
                     setModalFor={setModalFor}
                     handleClose={() => setAuthModalOpen(false)}
-                    onAuthSuccess={() => openLisaBackend('settings')}
+                    onAuthSuccess={() => openLisaExperience('home')}
                 />
             )}
         </>
