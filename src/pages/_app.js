@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
+import { Inter, Playfair_Display } from 'next/font/google'
 import Router, { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 import nProgress from 'nprogress'
@@ -27,6 +28,17 @@ import i18n, { t } from 'i18next'
 import '@/styles/global.css'
 import '@/styles/nprogress.css'
 
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['600', '700'],
+  variable: '--font-heading',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-body',
+})
 
 const Footer = dynamic(() => import('@/components/footer/Footer'), { ssr: false })
 
@@ -51,6 +63,7 @@ const App = ({ Component, pageProps, emotionCache = clientSideEmotionCache }) =>
   const router = useRouter()
   const [zoneid, setZoneid] = useState(undefined)
   const [viewFooter, setViewFooter] = useState(false)
+  const isPremiumHome = router.pathname === '/home'
 
   const getLayout = Component.getLayout ?? ((page) => page)
   // Language & zoneid logic
@@ -95,36 +108,43 @@ const App = ({ Component, pageProps, emotionCache = clientSideEmotionCache }) =>
                     <title>{t('Loading...')}</title>
                   </Head>
 
-                  <WrapperForApp pathname={router.pathname}>
+                  <WrapperForApp
+                    pathname={router.pathname}
+                    className={`${playfair.variable} ${inter.variable}`}
+                  >
                     <NoSsr>
                       <ScrollToTop />
-                      {router.pathname !== '/maintenance' && <Navigation />}
+                      {router.pathname !== '/maintenance' && (
+                        <Box sx={{ display: isPremiumHome ? 'none' : 'block' }}>
+                          <Navigation />
+                        </Box>
+                      )}
                       <DynamicFavicon />
                     </NoSsr>
                     <Box
                       sx={{
                         minHeight: '100vh',
                         mt: {
-                          xs: router.pathname === '/home'
-                              ? '2.5rem'
-                              : '3.5rem',
+                          xs: isPremiumHome ? 0 : '3.5rem',
                           md: router.pathname === '/'
                             ? zoneid
                               ? '120px'
                               : '64px'
-                            : '4rem',
+                            : isPremiumHome
+                              ? 0
+                              : '4rem',
                         },
                       }}
                     >
                       <NoSsr>
-                        {['/', '/checkout', '/chat'].includes(router.pathname) ? null : (
+                        {['/', '/checkout', '/chat', '/home'].includes(router.pathname) ? null : (
                           <FloatingCardManagement zoneid={zoneid} />
                         )}
                       </NoSsr>
                       {getLayout(<Component {...pageProps} />)}
                     </Box>
 
-                    {viewFooter && router.pathname !== '/maintenance' && (
+                    {viewFooter && router.pathname !== '/maintenance' && !isPremiumHome && (
                       <Footer languageDirection={settings.direction} />
                     )}
                   </WrapperForApp>

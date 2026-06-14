@@ -43,10 +43,10 @@ const skeletonColor =
 const skeletonColorAfter =
     'linear-gradient(78.58deg, #F5F6F8 3.23%, #FDFDFD 53.13%, #F6F7F8 100%)'
 const background = {
-    default: '#FFFFFF',
+    default: '#FFF8EA',
     paper: '#FFFFFF',
     buttonBackground: 'rgba(82, 102, 208, 0.05)',
-    profileBackground: '#FBFBFB',
+    profileBackground: '#F7EEDB',
     toaster: '#FFFFFF',
 }
 const newsletterBG = '#2287FD'
@@ -55,19 +55,19 @@ const divider = '#E6E8F0'
 // main: '#EF7822',
 // secondary main: '#ff903f',
 const primary = {
-    main: '#FF7918',
-    light: 'rgba(255, 121, 24, 0.60)',
-    dark: '#a3460a',
-    contrastText: '#FFFFFF',
-    midPrimary: ' #FFF5ED',
+    main: '#C9952E',
+    light: '#E8C878',
+    dark: '#A87521',
+    contrastText: '#031C3A',
+    midPrimary: '#F7EEDB',
     overLay: '#000000',
 }
 const searchBoxBg = primary.main
 const secondary = {
-    main: '#934916',
-    light: '#db5c00',
+    main: '#031C3A',
+    light: '#162238',
     semiLight: '#FFFAF6',
-    dark: '#a2684c',
+    dark: '#07111F',
     contrastText: '#FFFFFF',
 }
 const whiteContainer = {
@@ -129,8 +129,8 @@ const customColor = {
 }
 
 const text = {
-    primary: '#121828',
-    secondary: '#65748B',
+    primary: '#031C3A',
+    secondary: '#746B5F',
     info: '#0788FF',
     custom: '#242424',
     disabled: 'rgba(55, 65, 81, 0.48)',
@@ -141,7 +141,7 @@ const text = {
 export const lightThemeOptions = {
     typography: {
         allVariants: {
-            fontFamily: 'Public Sans',
+            fontFamily: 'var(--font-body), Inter, Public Sans, sans-serif',
             textTransform: 'none',
         },
     },

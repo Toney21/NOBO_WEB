@@ -118,7 +118,6 @@ const FloatingCart = (props) => {
     useEffect(() => {
         refetch().then()
     }, [cartList[0]?.restaurant_id])
-    console.log({ restaurantData })
     const handleProductUpdateModal = (item) => {
         dispatch(setCartItemByDispatch(item))
         setOpenModal(true)

@@ -127,6 +127,15 @@ export const getServerSideProps = async (context) => {
         }
     }
 
+    if (process.env.NEXT_PUBLIC_SITE_MODE === 'app') {
+        return {
+            redirect: {
+                destination: '/home',
+                permanent: false,
+            },
+        }
+    }
+
     return {
         props: {
             configData: configData || null,

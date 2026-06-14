@@ -118,7 +118,7 @@ export const baseThemeOptions = {
                     flexDirection: 'column',
                     minHeight: '100%',
                     width: '100%',
-                    textTransform: 'capitalize',
+                    textTransform: 'none',
 
 
                 },
@@ -300,9 +300,11 @@ export const baseThemeOptions = {
     },
     typography: {
         button: {
+            fontFamily: 'var(--font-body), Inter, Public Sans, sans-serif',
             fontWeight: 600,
+            textTransform: 'none',
         },
-        fontFamily: '"Rubik", sans-serif',
+        fontFamily: 'var(--font-body), Inter, Public Sans, sans-serif',
         textTransform: 'none',
 
         body1: {
@@ -340,17 +342,20 @@ export const baseThemeOptions = {
             lineHeight: 1.66,
         },
         h1: {
+            fontFamily: 'var(--font-heading), Playfair Display, serif',
             fontWeight: 700,
             fontSize: '3rem',
             lineHeight: 1.375,
         },
         h2: {
-            fontWeight: 700,
+            fontFamily: 'var(--font-heading), Playfair Display, serif',
+            fontWeight: 600,
             fontSize: '1.5rem',
             lineHeight: 1.375,
         },
         h3: {
-            fontWeight: 700,
+            fontFamily: 'var(--font-heading), Playfair Display, serif',
+            fontWeight: 600,
             fontSize: '1.375rem',
             lineHeight: 1.375,
         },

@@ -25,10 +25,10 @@ const table = {
 }
 
 const background = {
-    default: '#0B0F19',
-    paper: '#272424',
-    profileBackground: '#111827',
-    toaster: '#272727',
+    default: '#07111F',
+    paper: '#101A2B',
+    profileBackground: '#101A2B',
+    toaster: '#101A2B',
 }
 const footerCenterBg = '#2f3645'
 const footerAppBg = '#414141'
@@ -49,20 +49,20 @@ const skeletonColorAfter =
     'linear-gradient(78.58deg, #F5F6F8 3.23%, #FDFDFD 53.13%, #F6F7F8 100%)'
 
 const primary = {
-    main: '#FF7918',
-    light: '#ff6700',
-    dark: '#a3460a',
-    contrastText: neutral[900],
+    main: '#D6A23A',
+    light: '#E8C878',
+    dark: '#A87521',
+    contrastText: '#07111F',
     midPrimary: '#031C3A',
     overLay: '#000000',
 }
 const paperBoxShadow = '#000000'
 
 const secondary = {
-    main: '#934916',
-    light: '#db5c00',
-    dark: '#a2684c',
-    semiLight: '#FFFAF6',
+    main: '#031C3A',
+    light: '#162238',
+    dark: '#07111F',
+    semiLight: '#F6EFE5',
     contrastText: neutral[900],
 }
 

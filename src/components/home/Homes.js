@@ -67,6 +67,13 @@ import { setGlobalSettings } from '@/redux/slices/global'
 import NoboHeroSection from './NoboHeroSection'
 import NoboLisaSection from './NoboLisaSection'
 import { getToken } from '@/utils/localStorage'
+import PremiumHomeShell from './premium/PremiumHomeShell'
+import PremiumHeader from './premium/PremiumHeader'
+import ConciergeHero from './premium/ConciergeHero'
+import LisaRecommendationPanel from './premium/LisaRecommendationPanel'
+import CuratedRail from './premium/CuratedRail'
+import MinimalCategoryRail from './premium/MinimalCategoryRail'
+import FloatingBasketPill from './premium/FloatingBasketPill'
 
 const Homes = ({ configData }) => {
     const theme = useTheme()
@@ -91,6 +98,7 @@ const Homes = ({ configData }) => {
     )
     const router = useRouter()
     const { query, page, restaurantType, tags } = router.query
+    const isSearchMode = Boolean(query || page || restaurantType || tags)
     const {
         campaignFoods,
         banners,
@@ -248,145 +256,124 @@ const Homes = ({ configData }) => {
 
     return (
         <PushNotificationLayout>
-            {!query && !page && !restaurantType && !tags && (
+            {isSearchMode ? (
                 <>
-                    <NoboHeroSection />
-                    <NoboLisaSection />
-                </>
-            )}
-            <CustomContainer>
-                <CustomStackFullWidth
-                    sx={{
-                        marginTop: !query && !page && !restaurantType && !tags
-                            ? { xs: '24px', md: '36px' }
-                            : { xs: '60px', md: '135px' },
-                        marginBottom: '16px',
-                        direction: 'row',
-                    }}
-                >
-                    <Stack
-                        direction="row"
-                        width="100%"
-                        justifyContent="space-between"
-                    >
-                        <Typography
-                            fontSize={{ xs: '16px', md: '20px' }}
-                            fontWeight={{
-                                xs: '500',
-                                md: '700',
-                            }}
-                            color={theme.palette.neutral[1000]}
-                            component={!query && !page && !restaurantType && !tags ? 'h2' : 'h1'}
-                        >
-                            {!query && !page && !restaurantType && !tags
-                                ? 'Explore NOBO'
-                                : t('Find Best Restaurants and Foods')}
-                        </Typography>
-
-                        <>
-                            {restaurantType === 'dine-in' && (
-                                <>
-                                    {isXSmall ? (
-                                        <PrimaryButton
-                                            backgroundColor={
-                                                theme.palette.primary.main
-                                            }
-                                            variant="contained"
-                                            onClick={() => {
-                                                setOpenDrawer(true)
-                                            }}
-                                        >
-                                            <CustomImageContainer
-                                                src={mapIcon?.src}
-                                                alt="map"
-                                                width="24px"
-                                                height="24px"
-                                            />
-                                        </PrimaryButton>
-                                    ) : (
-                                        <PrimaryButton
-                                            backgroundColor={
-                                                theme.palette.primary.main
-                                            }
-                                            variant="contained"
-                                            onClick={() => {
-                                                setOpenDineInRes(true)
-                                            }}
-                                            sx={{
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                gap: '5px',
-                                            }}
-                                        >
-                                            <CustomImageContainer
-                                                src={mapIcon?.src}
-                                                alt="map"
-                                                width="24px"
-                                                height="24px"
-                                            />
-                                            {t('View From Map')}
-                                        </PrimaryButton>
-                                    )}
-                                </>
-                            )}
-                        </>
-                    </Stack>
-                </CustomStackFullWidth>
-            </CustomContainer>
-            <SearchFilterTag
-                sort_by={sort_by}
-                setSort_by={setSort_by}
-                tags={tags}
-                query={query}
-                page={page}
-                restaurantType={restaurantType}
-            />
-            {query || page || restaurantType || tags ? (
-                <CustomContainer>
-                    <ProductSearchPage
-                        tags={tags}
-                        configData={configData}
-                        query={query}
-                        page={page}
-                        restaurantType={restaurantType}
-                    />
-                </CustomContainer>
-            ) : (
-                <>
-                    <CustomContainer>
-                        <Banner isFetched={isFetched} data={data} />
-                    </CustomContainer>
-                    <Box>
-                        <FeatureCatagories height="70px" />
+                    <PremiumHomeShell>
+                        <PremiumHeader configData={configData} />
                         <CustomContainer>
-                            <VisitAgain />
-                            <AddsSection
-                                data={addStores}
-                                isLoading={addIsLoading}
-                            />
-                            {configData?.data?.dine_in_order_option === 1 ? (
-                                <DineIn />
-                            ) : null}
+                            <CustomStackFullWidth
+                                sx={{
+                                    marginTop: { xs: '28px', md: '40px' },
+                                    marginBottom: '16px',
+                                    direction: 'row',
+                                }}
+                            >
+                                <Stack
+                                    direction="row"
+                                    width="100%"
+                                    justifyContent="space-between"
+                                >
+                                    <Typography
+                                        fontSize={{ xs: '18px', md: '24px' }}
+                                        fontWeight={{ xs: '600', md: '700' }}
+                                        color="#F6EFE5"
+                                        component="h1"
+                                        sx={{ fontFamily: 'var(--font-heading)' }}
+                                    >
+                                        {t('Find Best Restaurants and Foods')}
+                                    </Typography>
+
+                                    <>
+                                        {restaurantType === 'dine-in' && (
+                                            <>
+                                                {isXSmall ? (
+                                                    <PrimaryButton
+                                                        backgroundColor={
+                                                            theme.palette.primary.main
+                                                        }
+                                                        variant="contained"
+                                                        onClick={() => {
+                                                            setOpenDrawer(true)
+                                                        }}
+                                                    >
+                                                        <CustomImageContainer
+                                                            src={mapIcon?.src}
+                                                            alt="map"
+                                                            width="24px"
+                                                            height="24px"
+                                                        />
+                                                    </PrimaryButton>
+                                                ) : (
+                                                    <PrimaryButton
+                                                        backgroundColor={
+                                                            theme.palette.primary.main
+                                                        }
+                                                        variant="contained"
+                                                        onClick={() => {
+                                                            setOpenDineInRes(true)
+                                                        }}
+                                                        sx={{
+                                                            justifyContent: 'space-between',
+                                                            alignItems: 'center',
+                                                            gap: '5px',
+                                                        }}
+                                                    >
+                                                        <CustomImageContainer
+                                                            src={mapIcon?.src}
+                                                            alt="map"
+                                                            width="24px"
+                                                            height="24px"
+                                                        />
+                                                        {t('View From Map')}
+                                                    </PrimaryButton>
+                                                )}
+                                            </>
+                                        )}
+                                    </>
+                                </Stack>
+                            </CustomStackFullWidth>
                         </CustomContainer>
-                    </Box>
-                    <CustomContainer>
-                        <DifferentFoodCompontent
-                            campaignIsloading={campaignIsloading}
-                            isLoading={isLoading}
-                            isLoadingNearByPopularRestaurantData={
-                                isLoadingNearByPopularRestaurantData
-                            }
+                        <SearchFilterTag
+                            sort_by={sort_by}
+                            setSort_by={setSort_by}
+                            tags={tags}
+                            query={query}
+                            page={page}
+                            restaurantType={restaurantType}
                         />
-                        <NewRestaurant />
-                        {configData && <Cuisines />}
-
-                        {configData?.banner_data?.promotional_banner_image && (
-                            <PromotionalBanner global={configData} />
-                        )}
-
-                        <Restaurant />
-                    </CustomContainer>
+                        <CustomContainer>
+                            <ProductSearchPage
+                                tags={tags}
+                                configData={configData}
+                                query={query}
+                                page={page}
+                                restaurantType={restaurantType}
+                            />
+                        </CustomContainer>
+                    </PremiumHomeShell>
                 </>
+            ) : (
+                <PremiumHomeShell>
+                    <PremiumHeader configData={configData} />
+                    <ConciergeHero configData={configData} />
+                    <LisaRecommendationPanel
+                        popularFood={popularFood}
+                        bestReviewedFoods={bestReviewedFoods}
+                        configData={configData}
+                    />
+                    <CuratedRail
+                        title="For this moment"
+                        subtitle="Selected around your timing, taste, and location."
+                        items={popularFood}
+                    />
+                    <MinimalCategoryRail />
+                    <CuratedRail
+                        title="Highly rated near you"
+                        subtitle="Reliable restaurants with consistent service."
+                        items={bestReviewedFoods}
+                    />
+                    <FloatingBasketPill />
+                </PremiumHomeShell>
             )}
 
             <CustomModal
@@ -443,7 +430,7 @@ const Homes = ({ configData }) => {
                     </Box>
                 </Box>
             </CustomModal>
-            {getToken && <CashBackPopup />}
+            {isSearchMode && getToken() && <CashBackPopup />}
             {openDineInRes && (
                 <CustomModal
                     openModal={openDineInRes}
