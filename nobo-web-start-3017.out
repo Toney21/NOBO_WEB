@@ -1,0 +1,10 @@
+
+> Nobo@3.0.0 start
+> next start -p 3017
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3017
+   - Network:      http://192.168.0.137:3017
+
+ ✓ Starting...
+ ✓ Ready in 3.5s

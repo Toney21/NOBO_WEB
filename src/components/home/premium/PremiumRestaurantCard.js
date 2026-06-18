@@ -4,15 +4,29 @@ import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined'
 import StarRoundedIcon from '@mui/icons-material/StarRounded'
 import { noboPremium } from '@/theme/nobo-premium-tokens'
+import PremiumMediaImage from './PremiumMediaImage'
 
-export const getPremiumItemImage = (item) =>
-    item?.image_full_url ||
-    item?.imageFullUrl ||
-    item?.image ||
-    item?.cover_image_full_url ||
-    item?.logo_full_url ||
-    item?.restaurant?.logo_full_url ||
-    ''
+export const getPremiumItemImage = (item) => {
+    const candidates = [
+        item?.image_full_url,
+        item?.imageFullUrl,
+        item?.cover_image_full_url,
+        item?.cover_photo_full_url,
+        item?.restaurant?.cover_photo_full_url,
+        item?.logo_full_url,
+        item?.restaurant?.logo_full_url,
+        item?.image,
+    ]
+
+    return (
+        candidates.find((candidate) => {
+            if (typeof candidate !== 'string' || !candidate.trim()) return false
+            return !/(^|\/)(def|default|placeholder)\.(png|jpe?g|webp)$/i.test(
+                candidate.trim()
+            )
+        }) || ''
+    )
+}
 
 export const getPremiumItemTitle = (item) =>
     item?.name || item?.title || item?.restaurant_name || item?.restaurant?.name || 'Curated meal'
@@ -24,12 +38,20 @@ const getArea = (item) =>
     item?.address ||
     'Nairobi'
 
-const getCuisine = (item) =>
-    item?.category_name ||
-    item?.restaurant?.cuisine ||
-    item?.cuisine ||
-    item?.restaurant?.name ||
-    'Selected for you'
+const getCuisine = (item) => {
+    const cuisine = item?.restaurant?.cuisine || item?.cuisine
+    const cuisineLabel = Array.isArray(cuisine)
+        ? cuisine.map((entry) => entry?.name || entry).filter(Boolean).join(', ')
+        : cuisine
+
+    return (
+        item?.category_name ||
+        cuisineLabel ||
+        item?.restaurant?.name ||
+        item?.restaurant_name ||
+        'Selected for you'
+    )
+}
 
 const PremiumImageSkeleton = ({ title }) => (
     <Box
@@ -57,7 +79,7 @@ const PremiumRestaurantCard = ({ item, onClick, variant = 'meal' }) => {
     const rating = item?.avg_rating || item?.rating || item?.restaurant?.avg_rating || '4.8'
     const time = item?.restaurant?.delivery_time || item?.delivery_time || '28-35 min'
     const subtitle = item?.subtitle || getCuisine(item)
-    const reviewCount = item?.review_count || item?.rating_count || '1,241'
+    const reviewCount = item?.review_count ?? item?.rating_count ?? 0
 
     if (variant === 'restaurant') {
         return (
@@ -68,9 +90,9 @@ const PremiumRestaurantCard = ({ item, onClick, variant = 'meal' }) => {
                 sx={{
                     width: '100%',
                     minWidth: 0,
-                    p: 0.7,
+                    p: 0,
                     border: isLight ? '1px solid rgba(3,28,58,0.08)' : '1px solid rgba(232,200,120,0.10)',
-                    borderRadius: 1.8,
+                    borderRadius: 2.6,
                     overflow: 'hidden',
                     background: isLight ? '#FFFFFF' : 'rgba(16,26,43,0.78)',
                     boxShadow: isLight ? '0 10px 26px rgba(3,28,58,0.07)' : 'none',
@@ -84,22 +106,22 @@ const PremiumRestaurantCard = ({ item, onClick, variant = 'meal' }) => {
                     },
                 }}
             >
-                <Stack direction="row" spacing={1.2} alignItems="center">
-                    <Box sx={{ width: 96, height: 70, borderRadius: 1.3, overflow: 'hidden', flex: '0 0 auto' }}>
-                        {image ? (
-                            <Box component="img" src={image} alt={title} loading="lazy" sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                        ) : (
-                            <PremiumImageSkeleton title={title} />
-                        )}
-                    </Box>
-                    <Stack spacing={0.35} sx={{ minWidth: 0, flex: 1 }}>
+                <Box sx={{ width: '100%', aspectRatio: '2 / 1', overflow: 'hidden', position: 'relative' }}>
+                    <PremiumMediaImage
+                        src={image}
+                        alt={title}
+                        sizes="(max-width: 600px) 88vw, (max-width: 1200px) 58vw, 460px"
+                        fallback={<PremiumImageSkeleton title={title} />}
+                    />
+                </Box>
+                <Stack spacing={0.65} sx={{ minWidth: 0, p: 1.7 }}>
                         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-                            <Typography noWrap sx={{ color: isLight ? noboPremium.color.navy900 : noboPremium.color.ivory, fontWeight: 800, fontSize: '0.86rem' }}>
+                            <Typography noWrap sx={{ color: isLight ? noboPremium.color.navy900 : noboPremium.color.ivory, fontWeight: 800, fontSize: '1rem' }}>
                                 {title}
                             </Typography>
                             <FavoriteBorderOutlinedIcon sx={{ color: isLight ? '#746B5F' : 'rgba(246,239,229,0.72)', fontSize: 18 }} />
                         </Stack>
-                        <Typography noWrap sx={{ color: isLight ? '#746B5F' : noboPremium.color.textMutedDark, fontSize: '0.75rem' }}>
+                        <Typography noWrap sx={{ color: isLight ? '#746B5F' : noboPremium.color.textMutedDark, fontSize: '0.8rem' }}>
                             {subtitle}
                         </Typography>
                         <Stack direction="row" spacing={0.9} alignItems="center">
@@ -116,7 +138,6 @@ const PremiumRestaurantCard = ({ item, onClick, variant = 'meal' }) => {
                                 {time}
                             </Typography>
                         </Stack>
-                    </Stack>
                 </Stack>
             </Box>
         )
@@ -148,22 +169,12 @@ const PremiumRestaurantCard = ({ item, onClick, variant = 'meal' }) => {
             }}
         >
             <Box sx={{ aspectRatio: '2.18 / 1', overflow: 'hidden', position: 'relative' }}>
-                {image ? (
-                    <Box
-                        component="img"
-                        src={image}
-                        alt={title}
-                        loading="lazy"
-                        sx={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            display: 'block',
-                        }}
-                    />
-                ) : (
-                    <PremiumImageSkeleton title={title} />
-                )}
+                <PremiumMediaImage
+                    src={image}
+                    alt={title}
+                    sizes="(max-width: 600px) 82vw, (max-width: 900px) 46vw, 300px"
+                    fallback={<PremiumImageSkeleton title={title} />}
+                />
                 <IconButton
                     aria-label={`Save ${title}`}
                     sx={{

@@ -32,13 +32,12 @@ const PlaceOrder = (props) => {
     const [checked, setChecked] = useState(false)
     const { token } = useSelector((state) => state.userToken)
     const { offlineInfoStep } = useSelector((state) => state.offlinePayment)
-    const { guestUserInfo } = useSelector((state) => state.guestUserInfo)
     const handleChange = (e) => {
         setChecked(e.target.checked)
     }
     const handleOfflineOrder = () => {
-        if (!token && guestUserInfo === null) {
-            toast.error(t('The Contact Person Info Is Required.'), {
+        if (!token) {
+            toast.error(t('Please login first'), {
                 position: 'bottom-right',
             })
         } else {

@@ -229,7 +229,10 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
     }
     const handlePickLocationOnClick = () => {
         if (zoneId && geoCodeResults && location) {
-            localStorage.setItem('zoneid', zoneId)
+            localStorage.setItem(
+                'zoneid',
+                JSON.stringify(Array.isArray(zoneId) ? zoneId : [zoneId])
+            )
             localStorage.setItem(
                 'location',
                 geoCodeResults?.data?.results[0]?.formatted_address
@@ -237,6 +240,7 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
             localStorage.setItem('currentLatLng', JSON.stringify(location))
             dispatch(setUserLocationUpdate(!userLocationUpdate))
             CustomToaster('success', 'New location has been set.')
+            window.dispatchEvent(new CustomEvent('nobo:location-changed'))
             if (redirectUrl) {
                 if (redirectUrl?.query === undefined) {
                     router.push({ pathname: redirectUrl?.pathname })
@@ -266,7 +270,10 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
             setLocationEnabled(true)
             setLoadingCurrentLocation(false)
             if (zoneId) {
-                localStorage.setItem('zoneid', zoneId)
+                localStorage.setItem(
+                    'zoneid',
+                    JSON.stringify(Array.isArray(zoneId) ? zoneId : [zoneId])
+                )
             }
             await refetchCurrentLocation()
             setRerenderMap((prevState) => !prevState)

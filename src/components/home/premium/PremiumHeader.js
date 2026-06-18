@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Box, Button, IconButton, Paper, Stack, TextField, Typography } from '@mui/material'
+import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
 import LocalMallOutlinedIcon from '@mui/icons-material/LocalMallOutlined'
 import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined'
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined'
@@ -9,6 +9,9 @@ import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
 import { noboPremium } from '@/theme/nobo-premium-tokens'
 import { openLisaExperience } from '@/utils/lisaBackend'
+import { getToken } from '@/utils/localStorage'
+import AuthModal from '@/components/auth'
+import MapModal from '@/components/landingpage/google-map/MapModal'
 import PremiumSearchBar from './PremiumSearchBar'
 
 const shortenLocation = (value) => {
@@ -21,14 +24,32 @@ const PremiumHeader = ({ configData }) => {
     const theme = useTheme()
     const router = useRouter()
     const { cartList } = useSelector((state) => state.cart)
+    const { userData } = useSelector((state) => state.user)
     const [location, setLocation] = useState('')
-    const [locationOpen, setLocationOpen] = useState(false)
-    const [locationDraft, setLocationDraft] = useState('')
+    const [authModalOpen, setAuthModalOpen] = useState(false)
+    const [modalFor, setModalFor] = useState('sign-in')
+    const [mapModalOpen, setMapModalOpen] = useState(false)
+    const [token, setToken] = useState(null)
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
             setLocation(localStorage.getItem('location') || '')
-            setLocationDraft(localStorage.getItem('location') || '')
+            setToken(getToken())
+        }
+    }, [])
+
+    useEffect(() => {
+        const handleAuthRequired = () => {
+            setModalFor('sign-in')
+            setAuthModalOpen(true)
+        }
+
+        if (typeof window === 'undefined') return
+
+        window.addEventListener('nobo:auth-required', handleAuthRequired)
+
+        return () => {
+            window.removeEventListener('nobo:auth-required', handleAuthRequired)
         }
     }, [])
 
@@ -36,30 +57,40 @@ const PremiumHeader = ({ configData }) => {
     const logo = configData?.logo_full_url
     const itemCount = cartList?.length || 0
     const isLight = theme.palette.mode === 'light'
-    const handleLocationSubmit = (event) => {
-        event.preventDefault()
-        const nextLocation = locationDraft.trim()
-        if (!nextLocation) return
-
-        localStorage.setItem('location', nextLocation)
-        setLocation(nextLocation)
-        setLocationOpen(false)
+    const handleCloseAuthModal = () => {
+        setAuthModalOpen(false)
+        setModalFor('sign-in')
+        setToken(getToken())
     }
+    const handleAuthSuccess = () => {
+        setToken(getToken())
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('nobo:auth-changed'))
+        }
+    }
+    const handleCloseMapModal = () => {
+        setMapModalOpen(false)
+        if (typeof window !== 'undefined') {
+            setLocation(localStorage.getItem('location') || '')
+        }
+    }
+    const displayName = userData?.f_name || userData?.name?.split(' ')?.[0] || 'Profile'
 
     return (
-        <Box
-            component="header"
-            sx={{
-                position: 'sticky',
-                top: 0,
-                zIndex: 1000,
-                background: isLight ? 'rgba(255,253,248,0.88)' : 'rgba(6,11,20,0.88)',
-                backdropFilter: 'blur(18px)',
-                borderBottom: isLight
-                    ? '1px solid rgba(214,162,58,0.14)'
-                    : '1px solid rgba(232,200,120,0.10)',
-            }}
-        >
+        <>
+            <Box
+                component="header"
+                sx={{
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1000,
+                    background: isLight ? 'rgba(255,253,248,0.88)' : 'rgba(6,11,20,0.88)',
+                    backdropFilter: 'blur(18px)',
+                    borderBottom: isLight
+                        ? '1px solid rgba(214,162,58,0.14)'
+                        : '1px solid rgba(232,200,120,0.10)',
+                }}
+            >
             <Box
                 sx={{
                     maxWidth: 1248,
@@ -104,89 +135,29 @@ const PremiumHeader = ({ configData }) => {
                             )}
                         </Box>
 
-                        <Box sx={{ position: 'relative' }}>
-                            <Button
-                                startIcon={<LocationOnOutlinedIcon sx={{ fontSize: 16 }} />}
-                                endIcon={<KeyboardArrowDownIcon />}
-                                onClick={() => setLocationOpen((value) => !value)}
-                                sx={{
-                                    minHeight: 44,
-                                    maxWidth: { xs: 150, sm: 220 },
-                                    px: 1.4,
-                                    borderRadius: 2,
-                                    color: noboPremium.color.gold400,
-                                    border: isLight
-                                        ? '1px solid rgba(214,162,58,0.16)'
-                                        : '1px solid rgba(232,200,120,0.12)',
-                                    background: isLight ? '#FFFFFF' : 'rgba(255,255,255,0.035)',
-                                    overflow: 'hidden',
-                                    whiteSpace: 'nowrap',
-                                    textOverflow: 'ellipsis',
-                                    '&:hover': {
-                                        borderColor: 'rgba(232,200,120,0.34)',
-                                        background: 'rgba(232,200,120,0.08)',
-                                    },
-                                }}
-                            >
-                                {shortenLocation(location)}
-                            </Button>
-                            {locationOpen && (
-                                <Paper
-                                    component="form"
-                                    onSubmit={handleLocationSubmit}
-                                    elevation={0}
-                                    sx={{
-                                        position: 'absolute',
-                                        top: 'calc(100% + 10px)',
-                                        left: 0,
-                                        zIndex: 30,
-                                        width: { xs: 280, sm: 340 },
-                                        p: 1.4,
-                                        borderRadius: 2,
-                                        border: isLight
-                                            ? '1px solid rgba(214,162,58,0.22)'
-                                            : '1px solid rgba(232,200,120,0.18)',
-                                        background: isLight ? '#FFFFFF' : 'rgba(16,26,43,0.98)',
-                                        boxShadow: isLight
-                                            ? '0 18px 44px rgba(3,28,58,0.12)'
-                                            : '0 24px 80px rgba(0,0,0,0.32)',
-                                    }}
-                                >
-                                    <Stack spacing={1.1}>
-                                        <Typography sx={{ color: isLight ? noboPremium.color.navy900 : noboPremium.color.ivory, fontSize: '0.84rem', fontWeight: 800 }}>
-                                            Enter your delivery location
-                                        </Typography>
-                                        <TextField
-                                            autoFocus
-                                            size="small"
-                                            value={locationDraft}
-                                            onChange={(event) => setLocationDraft(event.target.value)}
-                                            placeholder="Estate, building, or street"
-                                            inputProps={{ 'aria-label': 'Delivery location' }}
-                                        />
-                                        <Button
-                                            type="submit"
-                                            disabled={!locationDraft.trim()}
-                                            sx={{
-                                                minHeight: 40,
-                                                borderRadius: 1.5,
-                                                background: '#E5AE36',
-                                                color: noboPremium.color.navy900,
-                                                fontWeight: 800,
-                                            }}
-                                        >
-                                            Use this location
-                                        </Button>
-                                    </Stack>
-                                </Paper>
-                            )}
-                        </Box>
-
                         <Box sx={{ flex: 1, display: { xs: 'none', md: 'block' }, maxWidth: 560, mx: 'auto' }}>
                             <PremiumSearchBar compact />
                         </Box>
 
                         <Stack direction="row" spacing={1} sx={{ ml: 'auto' }}>
+                            <Button
+                                startIcon={<LocationOnOutlinedIcon sx={{ fontSize: 16 }} />}
+                                onClick={() => setMapModalOpen(true)}
+                                sx={{
+                                    minHeight: 44,
+                                    display: 'inline-flex',
+                                    minWidth: 44,
+                                    px: { xs: 1, sm: 1.4 },
+                                    borderRadius: 2,
+                                    color: noboPremium.color.gold400,
+                                    border: '1px solid rgba(214,162,58,0.42)',
+                                    background: isLight ? '#FFFFFF' : 'rgba(255,255,255,0.035)',
+                                }}
+                            >
+                                <Typography sx={{ display: { xs: 'none', sm: 'block' }, maxWidth: { sm: 130, lg: 180 }, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', fontSize: '0.78rem', fontWeight: 800 }}>
+                                    {shortenLocation(location)}
+                                </Typography>
+                            </Button>
                             <Button
                                 startIcon={<AutoAwesomeOutlinedIcon sx={{ fontSize: 16 }} />}
                                 onClick={() => openLisaExperience('home')}
@@ -243,21 +214,40 @@ const PremiumHeader = ({ configData }) => {
                                     </Box>
                                 )}
                             </IconButton>
-                            <Button
-                                aria-label="Profile menu"
-                                onClick={() => router.push({ pathname: '/info', query: { page: 'profile' } })}
-                                sx={{
-                                    minWidth: 0,
-                                    height: 44,
-                                    display: { xs: 'none', md: 'inline-flex' },
-                                    gap: 0.8,
-                                    color: isLight ? noboPremium.color.navy900 : noboPremium.color.ivory,
-                                }}
-                            >
-                                <Box sx={{ width: 30, height: 30, borderRadius: '50%', border: '2px solid rgba(214,162,58,0.55)', background: 'linear-gradient(135deg,#b66b2f,#f2c56a)' }} />
-                                <Typography sx={{ fontSize: '0.86rem', fontWeight: 700 }}>Tony</Typography>
-                                <KeyboardArrowDownIcon sx={{ fontSize: 16 }} />
-                            </Button>
+                            {token ? (
+                                <Button
+                                    aria-label="Profile menu"
+                                    onClick={() => router.push({ pathname: '/info', query: { page: 'profile' } })}
+                                    sx={{
+                                        minWidth: 0,
+                                        height: 44,
+                                        display: { xs: 'none', md: 'inline-flex' },
+                                        gap: 0.8,
+                                        color: isLight ? noboPremium.color.navy900 : noboPremium.color.ivory,
+                                    }}
+                                >
+                                    <Box sx={{ width: 30, height: 30, borderRadius: '50%', border: '2px solid rgba(214,162,58,0.55)', background: 'linear-gradient(135deg,#b66b2f,#f2c56a)' }} />
+                                    <Typography sx={{ fontSize: '0.86rem', fontWeight: 700 }}>{displayName}</Typography>
+                                    <KeyboardArrowDownIcon sx={{ fontSize: 16 }} />
+                                </Button>
+                            ) : (
+                                <Button
+                                    onClick={() => {
+                                        setModalFor('sign-in')
+                                        setAuthModalOpen(true)
+                                    }}
+                                    sx={{
+                                        minHeight: 44,
+                                        px: 2.2,
+                                        borderRadius: noboPremium.radius.pill,
+                                        color: noboPremium.color.navy900,
+                                        background: '#E5AE36',
+                                        fontWeight: 800,
+                                    }}
+                                >
+                                    Login
+                                </Button>
+                            )}
                         </Stack>
                     </Stack>
 
@@ -296,7 +286,16 @@ const PremiumHeader = ({ configData }) => {
                     </Stack>
                 </Stack>
             </Box>
-        </Box>
+            </Box>
+            <AuthModal
+                open={authModalOpen}
+                modalFor={modalFor}
+                setModalFor={setModalFor}
+                handleClose={handleCloseAuthModal}
+                onAuthSuccess={handleAuthSuccess}
+            />
+            <MapModal open={mapModalOpen} handleClose={handleCloseMapModal} />
+        </>
     )
 }
 

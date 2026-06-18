@@ -44,7 +44,10 @@ const CustomDrawerCart = () => {
 
     const { data: restaurantData, refetch } = useQuery(
         [`restaurant-details`],
-        () => RestaurantsApi.restaurantDetails(cartList[0].restaurant_id)
+        () => RestaurantsApi.restaurantDetails(cartList[0]?.restaurant_id),
+        {
+            enabled: Boolean(cartList?.[0]?.restaurant_id),
+        }
     )
 
     const DrawerHeader = styled('div')(({ theme }) => ({
@@ -65,8 +68,10 @@ const CustomDrawerCart = () => {
         }
     }
     useEffect(() => {
-        refetch()
-    }, [])
+        if (cartList?.[0]?.restaurant_id) {
+            refetch()
+        }
+    }, [cartList?.[0]?.restaurant_id])
     return (
         <>
             <Drawer

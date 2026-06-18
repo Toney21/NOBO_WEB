@@ -210,10 +210,15 @@ const SignInPage = ({
 
     const handleTokenAfterSignIn = async (response) => {
         if (response) {
+            if (handleSuccess) {
+                await handleSuccess(response?.token)
+                return
+            }
+
             setAuthToken(response?.token)
             zoneid && (await wishlistRefetch())
             await profileRefatch()
-            await cartListRefetch()
+            await cartListRefetch?.()
             CustomToaster('success', loginSuccessFull)
             dispatch(setToken(response.token))
             if (

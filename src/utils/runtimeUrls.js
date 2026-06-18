@@ -1,7 +1,15 @@
 const trimTrailingSlash = (value = '') => `${value}`.trim().replace(/\/+$/, '')
 
+export const isLocalBrowserOrigin = () =>
+    typeof window !== 'undefined' &&
+    /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
+
 export const normalizeBackendBaseUrl = (value = '') => {
     const trimmed = trimTrailingSlash(value)
+
+    if (isLocalBrowserOrigin()) {
+        return window.location.origin
+    }
 
     if (!trimmed) {
         return 'https://www.nobo.co.ke'

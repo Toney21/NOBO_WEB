@@ -40,7 +40,7 @@ import useCartItemUpdate from '../../hooks/react-query/add-cart/useCartItemUpdat
 import useDeleteAllCartItem from '../../hooks/react-query/add-cart/useDeleteAllCartItem'
 import { onErrorResponse } from '../ErrorResponse'
 import { handleValuesFromCartItems } from '../checkout-page/CheckoutPage'
-import { getGuestId, getToken } from '../checkout-page/functions/getGuestUserId'
+import { getToken } from '../checkout-page/functions/getGuestUserId'
 import LocationModalAlert from '../food-card/LocationModalAlert'
 import { ReadMore } from '../landingpage/ReadMore'
 import {
@@ -309,7 +309,6 @@ const FoodDetailModal = ({
             let totalQty = 0
             const itemObject = {
                 cart_id: product?.cartItemId,
-                guest_id: getGuestId(),
                 model: product?.available_date_starts ? 'ItemCampaign' : 'Food',
                 add_on_ids:
                     add_on?.length > 0
@@ -365,7 +364,6 @@ const FoodDetailModal = ({
         } else {
             let totalQty = 0
             const itemObject = {
-                guest_id: getGuestId(),
                 model: modalData[0]?.available_date_starts
                     ? 'ItemCampaign'
                     : 'Food',
@@ -453,6 +451,11 @@ const FoodDetailModal = ({
     }
 
     const handleProductAddUpdate = (checkingFor) => {
+        if (!getToken()) {
+            setAuthModalOpen(true)
+            return
+        }
+
         if (checkingFor === 'cart') {
             addOrUpdateToCartByDispatch()
         } else if (checkingFor === 'campaign') {
@@ -657,7 +660,7 @@ const FoodDetailModal = ({
         }
     }
     const clearCartAlert = () => {
-        deleteCartItemMutate(getGuestId(), {
+        deleteCartItemMutate(undefined, {
             onError: onErrorResponse,
         })
         dispatch(setClearCart())

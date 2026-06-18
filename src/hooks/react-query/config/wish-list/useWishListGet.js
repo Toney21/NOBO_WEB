@@ -10,6 +10,6 @@ export const useWishListGet = (onSuccessHandler, onErr) => {
     return useQuery('wishlist', () => WishList(), {
         enabled: false,
         onSuccess: onSuccessHandler,
-        onError: onSingleErrorResponse,
+        onError: onErr || onSingleErrorResponse,
     })
 }

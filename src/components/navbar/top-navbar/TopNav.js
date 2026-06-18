@@ -6,7 +6,6 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { useEffect, useState } from 'react'
 import { withTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
-import useGetGuest from '../../../hooks/react-query/profile/useGetGuest'
 import DrawerMenu from '../DrawerMenu'
 import LogoSide from '../second-navbar/LogoSide'
 import ThemeSwitches from './ThemeSwitches'
@@ -33,7 +32,6 @@ const TopNav = ({ cartListRefetch, isSticky }) => {
             return value
         }
     }
-    let guestId
     let zoneid = undefined
     if (typeof window !== 'undefined') {
         zoneid = safeJsonParse(localStorage.getItem('zoneid'))
@@ -50,32 +48,10 @@ const TopNav = ({ cartListRefetch, isSticky }) => {
         setUserLocation(location)
     }, [userLocationUpdate])
 
-    if (typeof window !== 'undefined') {
-        guestId = localStorage.getItem('guest_id')
-    }
     let currentLocation = undefined
     if (typeof window !== 'undefined') {
         currentLocation = safeJsonParse(localStorage.getItem('currentLatLng'))
     }
-
-    const {
-        data: guestData,
-        refetch: guestRefetch,
-        isLoading: guestIsLoading,
-    } = useGetGuest()
-
-    useEffect(() => {
-        if ((!guestId || guestId === 'undefined') && !guestIsLoading) {
-            guestRefetch()
-        }
-    }, [])
-
-    useEffect(() => {
-        if (guestData?.guest_id) {
-            localStorage.setItem('guest_id', guestData.guest_id)
-            guestId = guestData.guest_id
-        }
-    }, [guestData])
 
     const handleClick = () => {
         const shouldRedirectToHome = zoneid && currentLocation?.lat && currentLocation?.lng

@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import useAddCartItem from '../../hooks/react-query/add-cart/useAddCartItem'
 import { onErrorResponse } from '../ErrorResponse'
 import { RTL } from '../RTL/RTL'
-import { getGuestId } from '../checkout-page/functions/getGuestUserId'
+import { getToken } from '../checkout-page/functions/getGuestUserId'
 import CustomModal from '../custom-modal/CustomModal'
 import CartClearModal from '../foodDetail-modal/CartClearModal'
 import FoodVerticalCard from './FoodVerticalCard'
@@ -20,6 +20,7 @@ import HorizontalFoodCard from './HorizontalFoodCard'
 import LocationModalAlert from './LocationModalAlert'
 import useDeleteAllCartItem from '@/hooks/react-query/add-cart/useDeleteAllCartItem'
 import dynamic from 'next/dynamic'
+import AuthModal from '@/components/auth'
 const FoodDetailModal = dynamic(() =>
     import('../foodDetail-modal/FoodDetailModal')
 )
@@ -40,6 +41,8 @@ const FoodCard = ({
 
     const [openModal, setOpenModal] = React.useState(false)
     const [openAddressModalAlert, setOpenAddressModalAlert] = useState(false)
+    const [authModalOpen, setAuthModalOpen] = useState(false)
+    const [modalFor, setModalFor] = useState('sign-in')
     const { t } = useTranslation()
     const { global } = useSelector((state) => state.globalSettings)
     const { token } = useSelector((state) => state.userToken)
@@ -157,7 +160,6 @@ const FoodCard = ({
     }
     const addToCartHandler = () => {
         const itemObject = {
-            guest_id: getGuestId(),
             model: modalData[0]?.available_date_starts
                 ? 'ItemCampaign'
                 : 'Food',
@@ -193,6 +195,12 @@ const FoodCard = ({
     }
 
     const addToCart = (e) => {
+        if (!getToken()) {
+            e.stopPropagation()
+            setAuthModalOpen(true)
+            return
+        }
+
         if (location) {
             if (
                 product?.variations.length > 0 ||
@@ -252,7 +260,6 @@ const FoodCard = ({
     }
     const clearCartAlert = () => {
         const itemObject = {
-            guest_id: getGuestId(),
             model: modalData[0]?.available_date_starts
                 ? 'ItemCampaign'
                 : 'Food',
@@ -263,7 +270,7 @@ const FoodCard = ({
             quantity: modalData[0]?.quantity ?? 1,
             variations: [],
         }
-        deleteCartItemMutate(getGuestId(), {
+        deleteCartItemMutate(undefined, {
             onError: onErrorResponse,
         })
         dispatch(setClearCart())
@@ -369,6 +376,14 @@ const FoodCard = ({
                 clearCartAlert={clearCartAlert}
                 addToCard={addToCart}
             />
+            {authModalOpen && (
+                <AuthModal
+                    open={authModalOpen}
+                    handleClose={() => setAuthModalOpen(false)}
+                    modalFor={modalFor}
+                    setModalFor={setModalFor}
+                />
+            )}
         </>
     )
 }

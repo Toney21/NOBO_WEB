@@ -3,13 +3,10 @@ import MainApi from "../../../api/MainApi";
 import { onErrorResponse } from "@/components/ErrorResponse";
 import { getToken } from "@/components/checkout-page/functions/getGuestUserId";
 
-export default function useGetAllCartList(guestId, cartListSuccessHandler) {
-
+export default function useGetAllCartList(cartListSuccessHandler) {
   const getData = async () => {
-    const token = getToken()
     try {
-      const params = !token ? `?guest_id=${guestId}` : "";
-      const { data } = await MainApi.get(`api/v1/customer/cart/list${params}`);
+      const { data } = await MainApi.get("api/v1/customer/cart/list");
       return data;
     } catch (error) {
       throw error; // Rethrow the error to be caught by React Query
@@ -18,7 +15,7 @@ export default function useGetAllCartList(guestId, cartListSuccessHandler) {
 
   return useQuery("cart-item", getData, {
     onSuccess: cartListSuccessHandler,
-    enabled: typeof guestId !== 'undefined', // Enable the query only when guestId is defined
+    enabled: Boolean(getToken()),
     onError: onErrorResponse,
     refetchOnWindowFocus: false,
 

@@ -73,6 +73,9 @@ const App = ({ Component, pageProps, emotionCache = clientSideEmotionCache }) =>
     if (!storedLang) localStorage.setItem('language', browserLang)
     i18n.changeLanguage(storedLang || browserLang)
 
+    localStorage.removeItem('guest_id')
+    localStorage.removeItem('guest_token')
+
     const storedZoneId = localStorage.getItem('zoneid')
     if (storedZoneId) setZoneid(safeJsonParse(storedZoneId))
 

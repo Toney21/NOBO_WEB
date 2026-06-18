@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
     language: '',
     countryCode: 'US',
-    countryFlag: '/_next/static/media/us.b358a5c6.svg'
+    countryFlag: '/static/country-flag/us.svg'
 }
 
 // Action creators are generated for each case reducer function

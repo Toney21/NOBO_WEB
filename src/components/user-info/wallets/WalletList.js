@@ -169,7 +169,7 @@ const Wallet = ({ page }) => {
     const formik = useFormik({
         initialValues: {
             amount: '',
-            payment_method: global?.active_payment_method_list[0]?.gateway,
+            payment_method: global?.active_payment_method_list?.[0]?.gateway,
         },
         validationSchema: validationSchema,
         onSubmit: async (values, helpers) => {

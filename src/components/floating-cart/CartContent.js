@@ -39,7 +39,6 @@ import { onErrorResponse } from '../ErrorResponse'
 import useDeleteCartItem from '../../hooks/react-query/add-cart/useDeleteCartItem'
 import useCartItemUpdate from '../../hooks/react-query/add-cart/useCartItemUpdate'
 import { useDispatch, useSelector } from 'react-redux'
-import { getGuestId } from '../checkout-page/functions/getGuestUserId'
 import HalalSvg from '@/components/food-card/HalalSvg'
 import { CustomToaster } from '@/components/custom-toaster/CustomToaster'
 import { useTheme } from '@mui/styles'
@@ -47,7 +46,6 @@ import CustomNextImage from '@/components/CustomNextImage'
 
 const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
     const dispatch = useDispatch()
-    const guestId = getGuestId()
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
@@ -109,8 +107,7 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
         const itemObject = getItemDataForAddToCart(
             item,
             updateQuantity,
-            productPrice,
-            guestId
+            productPrice
         )
         if (item?.maximum_cart_quantity) {
             if (item?.maximum_cart_quantity <= item?.quantity) {
@@ -170,8 +167,7 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
         const itemObject = getItemDataForAddToCart(
             item,
             updateQuantity,
-            productPrice,
-            guestId
+            productPrice
         )
         updateMutate(itemObject, {
             onSuccess: (res) => cartUpdateHandleSuccessDecrement(res, item),
@@ -192,7 +188,6 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
     const handleRemove = (item) => {
         const cartIdAndGuestId = {
             cart_id: item?.cartItemId,
-            guestId: getGuestId(),
         }
         itemRemove(cartIdAndGuestId, {
             onSuccess: () => handleSuccess(item),
@@ -251,8 +246,7 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
         const itemObject = getItemDataForAddToCart(
             item,
             newQuantity,
-            productPrice,
-            guestId
+            productPrice
         )
 
         if (

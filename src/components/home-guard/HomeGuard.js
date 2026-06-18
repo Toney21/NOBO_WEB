@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import CssBaseline from '@mui/material/CssBaseline'
 import { useSelector } from 'react-redux'
+import { getToken } from '@/utils/localStorage'
 
 const HomeGuard = (props) => {
     const { children, from, page } = props
@@ -13,13 +14,19 @@ const HomeGuard = (props) => {
             if (!router.isReady) {
                 return
             }
+            if (from === 'checkout' && !getToken()) {
+                router.push('/home')
+                return
+            }
             if (
                 from === 'checkout' &&
                 cartList?.length === 0 &&
                 page !== 'campaign'
             ) {
                 router.push('/home')
+                return
             }
+            setChecked(true)
             // const zoneId = JSON.parse(localStorage.getItem('zoneid'))
             // const location = localStorage.getItem('location')
             // if (zoneId?.length > 0 && location) {
@@ -32,9 +39,9 @@ const HomeGuard = (props) => {
         [router.isReady]
     )
 
-    // if (!checked) {
-    //     return null
-    // }
+    if (!checked) {
+        return null
+    }
 
     // If got here, it means that the redirect did not occur, and that tells us that the user is
     // authenticated / authorized.

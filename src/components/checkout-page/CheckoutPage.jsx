@@ -1143,14 +1143,14 @@ const CheckoutPage = ({ isDineIn }) => {
             global?.digital_payment &&
             global?.active_payment_method_list?.length === 1
         ) {
+            const activePaymentMethod = global?.active_payment_method_list?.[0]
             setPaymenMethod('digital_payment')
             setSelected({
-                name: global?.active_payment_method_list[0]?.gateway,
+                name: activePaymentMethod?.gateway,
             })
             setPaymentMethodDetails({
-                name: global?.active_payment_method_list[0]?.gateway,
-                image: global?.active_payment_method_list[0]
-                    ?.gateway_image_full_url,
+                name: activePaymentMethod?.gateway,
+                image: activePaymentMethod?.gateway_image_full_url,
             })
         } else {
             if (global?.cash_on_delivery) {

@@ -26,8 +26,7 @@ import { PrimaryButton } from '../products-page/FoodOrRestaurant'
 import emptycart from '../../../public/static/emptycart.png'
 import { RTL } from '../RTL/RTL'
 import Cart from './Cart'
-import GuestCheckoutModal from './GuestCheckoutModal'
-import { getGuestId, getToken } from '../checkout-page/functions/getGuestUserId'
+import { getToken } from '../checkout-page/functions/getGuestUserId'
 import {
     getSelectedAddons,
     getSelectedVariations,
@@ -42,7 +41,6 @@ const FloatingCart = (props) => {
     const { sideDrawerOpen, setSideDrawerOpen } = props
     const theme = useTheme()
     const { t } = useTranslation()
-    const [openGuestModal, setOpenGuestModal] = useState(false)
     const router = useRouter()
     const dispatch = useDispatch()
     const { cartList } = useSelector((state) => state.cart)
@@ -77,7 +75,10 @@ const FloatingCart = (props) => {
 
     const { data: restaurantData, refetch } = useQuery(
         [`restaurant-details`],
-        () => RestaurantsApi.restaurantDetails(cartList[0]?.restaurant_id)
+        () => RestaurantsApi.restaurantDetails(cartList[0]?.restaurant_id),
+        {
+            enabled: Boolean(cartList?.[0]?.restaurant_id),
+        }
     )
 
     const handleCheckout = () => {
@@ -105,19 +106,16 @@ const FloatingCart = (props) => {
             // router.push('/checkout?page=cart')
             closeDrawers()
         } else {
-            const shouldOpenGuestModal = global?.guest_checkout_status === 1
-            if (shouldOpenGuestModal) {
-                setOpenGuestModal(true)
-            } else {
-                handleOpenAuthModal()
-            }
+            handleOpenAuthModal()
 
             closeDrawers()
         }
     }
     useEffect(() => {
-        refetch().then()
-    }, [cartList[0]?.restaurant_id])
+        if (cartList?.[0]?.restaurant_id) {
+            refetch().then()
+        }
+    }, [cartList?.[0]?.restaurant_id])
     const handleProductUpdateModal = (item) => {
         dispatch(setCartItemByDispatch(item))
         setOpenModal(true)
@@ -158,7 +156,6 @@ const FloatingCart = (props) => {
     }
 
     const { data: cartData, refetch: cartListRefetch } = useGetAllCartList(
-        getGuestId(),
         cartListSuccessHandler
     )
     const starColor = theme.palette.primary.main
@@ -512,15 +509,6 @@ const FloatingCart = (props) => {
                     )}
                 </Drawer>
             </RTL>
-            {openGuestModal && (
-                <GuestCheckoutModal
-                    setModalFor={setModalFor}
-                    handleOpenAuthModal={handleOpenAuthModal}
-                    open={openGuestModal}
-                    setOpen={setOpenGuestModal}
-                    setSideDrawerOpen={setSideDrawerOpen}
-                />
-            )}
             {openModal && (
                 <ProductUpdateModal
                     openModal={openModal}

@@ -25,13 +25,22 @@ const safelyParseJson = (value) => {
     }
 }
 
+const normalizeZoneHeader = (value) => {
+    const parsed = safelyParseJson(value) ?? value
+    const zoneIds = Array.isArray(parsed) ? parsed : [parsed]
+    const normalized = zoneIds
+        .map((zoneId) => Number(zoneId))
+        .filter((zoneId) => Number.isFinite(zoneId) && zoneId > 0)
+
+    return normalized.length > 0 ? JSON.stringify(normalized) : undefined
+}
+
 MainApi.interceptors.request.use(function (config) {
     let zoneId = undefined
     let token = undefined
     let language = undefined
     let currentLocation = undefined
     let software_id = 33571750
-    let hostname = process.env.NEXT_CLIENT_HOST_URL
 
     if (typeof window !== 'undefined') {
         zoneId = getSessionStorageItem('zoneid') || getZoneId()
@@ -46,10 +55,10 @@ MainApi.interceptors.request.use(function (config) {
     }
     config.headers.latitude = currentLocation?.lat || 0
     config.headers.longitude = currentLocation?.lng || 0
-    if (zoneId) config.headers.zoneId = zoneId
+    const normalizedZoneId = normalizeZoneHeader(zoneId)
+    if (normalizedZoneId) config.headers.zoneId = normalizedZoneId
     if (token) config.headers.authorization = `Bearer ${token}`
     if (language) config.headers['X-localization'] = language
-    if (hostname) config.headers['origin'] = hostname
     config.headers['X-software-id'] = software_id
     config.headers["ngrok-skip-browser-warning"] = true;
 

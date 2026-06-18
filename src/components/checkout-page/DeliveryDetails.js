@@ -13,7 +13,6 @@ import {
 import OrderType from './order-type'
 import AdditionalAddresses from './AdditionalAddresses'
 import { Typography } from '@mui/material'
-import CheckoutSelectedAddressGuest from './guest-user/CheckoutSelectedAddressGuest'
 import { getToken } from './functions/getGuestUserId'
 const DeliveryDetails = (props) => {
     const {
@@ -116,28 +115,19 @@ const DeliveryDetails = (props) => {
                         </RadioGroup>
                     )}
                 </FormControl>
-                {!token && orderType !== 'dine_in' ? (
-                    <CheckoutSelectedAddressGuest
-                        address={address}
-                        orderType={orderType}
-                    />
-                ) : (
-                    <>
-                        {orderType &&
-                            orderType !== 'dine_in' &&
-                            orderType !== 'take_away' && (
-                                <DeliveryAddress
-                                    setAddress={setAddress}
-                                    address={address}
-                                    additionalInformationDispatch={
-                                        additionalInformationDispatch
-                                    }
-                                    restaurantId={restaurantData?.data?.zone_id}
-                                    token={token}
-                                />
-                            )}
-                    </>
-                )}
+                {orderType &&
+                    orderType !== 'dine_in' &&
+                    orderType !== 'take_away' && (
+                        <DeliveryAddress
+                            setAddress={setAddress}
+                            address={address}
+                            additionalInformationDispatch={
+                                additionalInformationDispatch
+                            }
+                            restaurantId={restaurantData?.data?.zone_id}
+                            token={token}
+                        />
+                    )}
 
                 {getToken() && (
                     <AdditionalAddresses

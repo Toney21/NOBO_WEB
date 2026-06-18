@@ -33,7 +33,7 @@ const AddressReselect = ({ location, isSticky }) => {
         (state) => state.globalSettings
     )
     const [address, setAddress] = useState(null)
-    const [tooltipOpen, setTooltipOpen] = useState(true)
+    const [tooltipOpen, setTooltipOpen] = useState(false)
     const { t } = useTranslation()
     const dispatch = useDispatch()
     const anchorRef = useRef(null)
@@ -66,13 +66,13 @@ const AddressReselect = ({ location, isSticky }) => {
 
     useEffect(() => {
         // Hide tooltip when isSticky is true, show when false
-        setTooltipOpen(!isSticky)
+        setTooltipOpen(false)
     }, [isSticky])
 
     useEffect(() => {
         // Show tooltip again when route changes
         if (!location) {
-            setTooltipOpen(true)
+            setTooltipOpen(false)
         }
     }, [router.pathname, location])
 
@@ -81,8 +81,6 @@ const AddressReselect = ({ location, isSticky }) => {
         const handleScroll = () => {
             if (window.scrollY > 0) {
                 setTooltipOpen(false)
-            } else if (window.scrollY === 0 && !location && !isSticky) {
-                setTooltipOpen(true)
             }
         }
 
@@ -119,7 +117,7 @@ const AddressReselect = ({ location, isSticky }) => {
             {!location ? (
                 <ClickAwayListener onClickAway={handleTooltipClose}>
                     <Tooltip
-                        title={t("Please setup your location to view available restaurants and foods in your area")}
+                        title=""
                         arrow
                         placement="top"
                         open={tooltipOpen}

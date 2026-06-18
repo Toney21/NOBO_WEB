@@ -20,7 +20,6 @@ import { useDispatch } from 'react-redux'
 import useCartItemUpdate from '../../hooks/react-query/add-cart/useCartItemUpdate'
 import useDeleteCartItem from '../../hooks/react-query/add-cart/useDeleteCartItem'
 import { onErrorResponse } from '../ErrorResponse'
-import { getGuestId } from '../checkout-page/functions/getGuestUserId'
 import { getItemDataForAddToCart } from '../floating-cart/helperFunction'
 import CircularLoader from '../loader/CircularLoader'
 import { getSelectedAddons } from '../navbar/second-navbar/SecondNavbar'
@@ -38,7 +37,6 @@ const FoodCardIncrementAndDecrement = ({
         useCartItemUpdate()
     const { mutate: itemRemove, isLoading: removeIsLoading } =
         useDeleteCartItem()
-    const guestId = getGuestId()
     const handleHover = () => {}
 
     const cartUpdateHandleSuccess = (res) => {
@@ -84,8 +82,7 @@ const FoodCardIncrementAndDecrement = ({
             const itemObject = getItemDataForAddToCart(
                 isInCart,
                 updateQuantity,
-                totalPrice,
-                guestId
+                totalPrice
             )
             if (product?.maximum_cart_quantity) {
                 if (
@@ -146,8 +143,7 @@ const FoodCardIncrementAndDecrement = ({
         const itemObject = getItemDataForAddToCart(
             isInCart,
             updateQuantity,
-            totalPrice,
-            guestId
+            totalPrice
         )
         updateMutate(itemObject, {
             onSuccess: cartUpdateHandleSuccessDecrement,
@@ -160,7 +156,6 @@ const FoodCardIncrementAndDecrement = ({
     const handleRemove = () => {
         const cartIdAndGuestId = {
             cart_id: isInCart?.cartItemId,
-            guestId: getGuestId(),
         }
         itemRemove(cartIdAndGuestId, {
             onSuccess: handleSuccess,

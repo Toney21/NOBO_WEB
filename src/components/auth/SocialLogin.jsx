@@ -16,9 +16,13 @@ const SocialLogin = (props) => {
         setForWidth,
         all,
     } = props
+    const socialLogins = Array.isArray(global?.social_login)
+        ? global.social_login
+        : []
+
     return (
         <>
-            {global?.social_login.length > 0 && (
+            {socialLogins.length > 0 && (
                 <Stack
                     alignItems="center"
                     justifyContent="center"
@@ -27,7 +31,7 @@ const SocialLogin = (props) => {
                     width="100%"
                 >
                     <SocialLogins
-                        socialLogins={global?.social_login}
+                        socialLogins={socialLogins}
                         handleParentModalClose={handleClose}
                         setJwtToken={setJwtToken}
                         setUserInfo={setUserInfo}

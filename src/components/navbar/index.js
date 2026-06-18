@@ -20,17 +20,16 @@ import {
 } from '@/utils/customFunctions'
 import { cart } from '@/redux/slices/cart'
 import useGetAllCartList from '../../hooks/react-query/add-cart/useGetAllCartList'
-import { getGuestId } from '../checkout-page/functions/getGuestUserId'
 import { ConfigApi } from '@/hooks/react-query/config/useConfig'
 import { useQuery } from 'react-query'
 import { onSingleErrorResponse } from '@/components/ErrorResponse'
 import { setGlobalSettings } from '@/redux/slices/global'
+import { getToken } from '@/utils/localStorage'
 
 const Navigation = () => {
     const { global } = useSelector((state) => state.globalSettings)
     const router = useRouter()
     const dispatch = useDispatch()
-    const guestId = getGuestId()
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const { isSticky } = useSelector((state) => state.scrollPosition)
@@ -82,13 +81,15 @@ const Navigation = () => {
         }
     }
 
+    const token = getToken()
     const { data: cartData, refetch: cartListRefetch } = useGetAllCartList(
-        guestId,
         cartListSuccessHandler
     )
     useEffect(() => {
-        cartListRefetch()
-    }, [router.pathname])
+        if (token) {
+            cartListRefetch()
+        }
+    }, [router.pathname, token])
 
     const handleConfigData = (res) => {
         if (res?.data) {

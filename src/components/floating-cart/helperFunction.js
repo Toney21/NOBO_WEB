@@ -3,12 +3,10 @@ import { handleValuesFromCartItems } from '../checkout-page/CheckoutPage'
 export const getItemDataForAddToCart = (
     values,
     updateQuantity,
-    mainPrice,
-    guest_id
+    mainPrice
 ) => {
     let totalQty = 0
     return {
-        guest_id: guest_id,
         cart_id: values?.cartItemId,
         model: values?.available_date_starts ? 'ItemCampaign' : 'Item',
         add_on_ids:

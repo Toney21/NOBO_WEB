@@ -125,16 +125,23 @@ export const setAuthToken = (token) => {
     }
 
     removeFromLocalStorage(AUTH_TOKEN_KEY)
-    return setToSessionStorage(AUTH_TOKEN_KEY, token)
+    const stored = setToSessionStorage(AUTH_TOKEN_KEY, token)
+    if (stored && canUseBrowserStorage()) {
+        window.dispatchEvent(new CustomEvent('nobo:auth-changed'))
+    }
+    return stored
 }
 
 export const removeAuthToken = () => {
     const removedSession = removeFromSessionStorage(AUTH_TOKEN_KEY)
     const removedLocal = removeFromLocalStorage(AUTH_TOKEN_KEY)
+    if ((removedSession || removedLocal) && canUseBrowserStorage()) {
+        window.dispatchEvent(new CustomEvent('nobo:auth-changed'))
+    }
     return removedSession || removedLocal
 }
 
-export const getGuestId = () => getFromLocalStorage('guest_id')
+export const getGuestId = () => null
 export const getCurrentLatLng = () => {
     const value = getFromLocalStorage('currentLatLng')
     try {

@@ -158,7 +158,7 @@ export const getLisaBackendUrl = (path = 'home', { includeToken = true } = {}) =
     }
 
     const separator = url.includes('?') ? '&' : '?'
-    return `${url}${separator}token=${encodeURIComponent(token)}`
+    return `${url}${separator}access_token=${encodeURIComponent(token)}`
 }
 
 export const openLisaBackend = (path = 'home', options) => {
@@ -184,6 +184,34 @@ export const fetchLisaBackendJson = async (path = 'ai/profile') => {
             Accept: 'application/json',
             Authorization: `Bearer ${token}`,
         },
+    })
+
+    if (!response.ok) {
+        throw new Error(`Lisa request failed: ${response.status}`)
+    }
+
+    return response.json()
+}
+
+export const postLisaBackendJson = async (path = 'ai/collect-intent', payload = {}) => {
+    const token = readLisaToken()
+    if (!token) {
+        return null
+    }
+
+    const cleanPath = String(path || 'ai/collect-intent').replace(/^\/+/, '')
+    if (typeof window !== 'undefined' && window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        throw new Error('Insecure browser origin is not allowed.')
+    }
+
+    const response = await fetch(`${cleanBaseUrl}/api/v1/${cleanPath}`, {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
     })
 
     if (!response.ok) {
@@ -243,7 +271,7 @@ export const fetchLisaControllerState = async ({ forceRefresh = false } = {}) =>
 
     const controllerState = {
         profile,
-        homeContent: asObject(homeResponse),
+        homeContent: asObject(homeResponse?.content || homeResponse),
         alerts: asArray(alertsResponse?.items),
         settings: asObject(settingsResponse?.settings),
         settingsOptions: asObject(settingsResponse?.options),
@@ -293,6 +321,16 @@ export const openLisaExperience = async (
     options = {}
 ) => {
     if (typeof window === 'undefined') {
+        return
+    }
+
+    if (!readLisaToken()) {
+        window.dispatchEvent(new CustomEvent('nobo:auth-required', {
+            detail: {
+                reason: 'lisa',
+                path: normalizeLisaPath(path),
+            },
+        }))
         return
     }
 

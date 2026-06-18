@@ -83,6 +83,7 @@
         "dev:i18n": "concurrently \"npm run i18n:watch\" \"next dev\"",
         "build": "next build",
         "start": "next start",
+        "postinstall": "node scripts/patch-nanoclone.js",
         "i18n:extract": "i18next-scanner",
         "i18n:watch": "node i18n-watch.js"
     },

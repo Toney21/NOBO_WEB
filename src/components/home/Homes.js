@@ -33,6 +33,7 @@ import {
     Stack,
     IconButton,
     SwipeableDrawer,
+    Button,
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { t } from 'i18next'
@@ -40,7 +41,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
-import { onSingleErrorResponse } from '../ErrorResponse'
+import { onSilentErrorResponse } from '../ErrorResponse'
 import PushNotificationLayout from '../PushNotificationLayout'
 import CashBackPopup from '../cash-back-popup/CashBackPopup'
 import CustomContainer from '../container'
@@ -57,6 +58,7 @@ import FeatureCatagories from './featured-categories/FeatureCatagories'
 import VisitAgain, { Puller } from './visit-again'
 import AddsSection from '@/components/home/add-section'
 import { useGetAdds } from '@/hooks/react-query/useGetAdds'
+import { getData as getRecommendedRestaurants } from '@/hooks/react-query/wanna-try-again/useRecommendedRestaurant'
 import { PrimaryButton } from '@/components/products-page/FoodOrRestaurant'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import DineIn from '@/components/home/dine-in'
@@ -78,12 +80,43 @@ const Homes = ({ configData }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
     const { global } = useSelector((state) => state.globalSettings)
-    const [fetchedData, setFetcheedData] = useState({})
     const { userData } = useSelector((state) => state.user)
     const [sort_by, setSort_by] = useState('')
     const [openDineInRes, setOpenDineInRes] = useState(false)
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const [openDrawer, setOpenDrawer] = useState(false)
+    const [authToken, setAuthTokenState] = useState(null)
+    const [hasLocation, setHasLocation] = useState(false)
+    const [locationKey, setLocationKey] = useState('')
+
+    useEffect(() => {
+        const syncAuthToken = () => setAuthTokenState(getToken())
+        const syncLocation = () => {
+            const location = localStorage.getItem('location')
+            const zoneId = localStorage.getItem('zoneid')
+            const coordinates = localStorage.getItem('currentLatLng')
+            setHasLocation(Boolean(location && zoneId && coordinates))
+            setLocationKey(`${location || ''}|${zoneId || ''}|${coordinates || ''}`)
+        }
+        syncAuthToken()
+
+        if (typeof window !== 'undefined') {
+            syncLocation()
+            window.addEventListener('nobo:auth-changed', syncAuthToken)
+            window.addEventListener('nobo:location-changed', syncLocation)
+            window.addEventListener('storage', syncAuthToken)
+            window.addEventListener('storage', syncLocation)
+        }
+
+        return () => {
+            if (typeof window !== 'undefined') {
+                window.removeEventListener('nobo:auth-changed', syncAuthToken)
+                window.removeEventListener('nobo:location-changed', syncLocation)
+                window.removeEventListener('storage', syncAuthToken)
+                window.removeEventListener('storage', syncLocation)
+            }
+        }
+    }, [])
 
     useEffect(() => {
         if (!global) {
@@ -108,16 +141,17 @@ const Homes = ({ configData }) => {
 
     const { welcomeModal, isNeedLoad } = useSelector((state) => state.utilsData)
     const onSuccessHandler = (response) => {
-        setFetcheedData(response)
-        dispatch(setWishList(fetchedData))
+        dispatch(setWishList(response))
     }
-    const { refetch } = useWishListGet(onSuccessHandler)
+    const { refetch } = useWishListGet(
+        onSuccessHandler,
+        onSilentErrorResponse
+    )
     useEffect(() => {
-        const token = getToken()
-        if (token) {
+        if (authToken) {
             refetch().then()
         }
-    }, [fetchedData])
+    }, [authToken])
 
     const {
         data,
@@ -126,7 +160,7 @@ const Homes = ({ configData }) => {
     } = useQuery(['banner-image'], BannerApi.bannerList, {
         enabled: false,
         staleTime: 1000 * 60 * 8,
-        onError: onSingleErrorResponse,
+        onError: onSilentErrorResponse,
     })
 
     const {
@@ -135,7 +169,7 @@ const Homes = ({ configData }) => {
         isLoading: campaignIsloading,
     } = useQuery(['campaign'], CampaignApi.campaign, {
         enabled: false,
-        onError: onSingleErrorResponse,
+        onError: onSilentErrorResponse,
         staleTime: 1000 * 60 * 8,
         cacheTime: 8 * 60 * 1000,
     })
@@ -145,7 +179,7 @@ const Homes = ({ configData }) => {
         isLoading,
     } = useQuery(['most-review-product'], MostReviewedApi.reviewed, {
         enabled: false,
-        onError: onSingleErrorResponse,
+        onError: onSilentErrorResponse,
     })
     const {
         data: addData,
@@ -153,15 +187,28 @@ const Homes = ({ configData }) => {
         refetch: addRefetch,
     } = useGetAdds()
     const {
+        data: recommendedRestaurantData,
+        refetch: refetchRecommendedRestaurants,
+    } = useQuery(['recommended-restaurants-home'], getRecommendedRestaurants, {
+        enabled: false,
+        onError: onSilentErrorResponse,
+        staleTime: 1000 * 60 * 5,
+        retry: 1,
+    })
+    const {
         isLoading: isLoadingNearByPopularRestaurantData,
         data: nearByPopularRestaurantData,
         refetch: refetchNearByPopularRestaurantData,
     } = useQuery(['popular-food'], PopularFoodNearbyApi.popularFood, {
         enabled: false,
-        onError: onSingleErrorResponse,
+        onError: onSilentErrorResponse,
     })
 
     const apiRefetch = async () => {
+        if (!authToken) {
+            return
+        }
+
         if (
             (banners?.banners?.length === 0 &&
                 banners?.campaigns?.length === 0) ||
@@ -182,10 +229,11 @@ const Homes = ({ configData }) => {
         if (popularFood?.length === 0 || isNeedLoad) {
             await refetchNearByPopularRestaurantData()
         }
+        await refetchRecommendedRestaurants()
     }
     useEffect(() => {
         apiRefetch()
-    }, [])
+    }, [authToken, locationKey])
 
     useEffect(() => {
         if (addData) {
@@ -252,9 +300,65 @@ const Homes = ({ configData }) => {
     const toggleDrawer = () => () => {
         setOpenDrawer(!openDrawer)
     }
+    const recommendedRestaurants = Array.isArray(recommendedRestaurantData)
+        ? recommendedRestaurantData
+        : recommendedRestaurantData?.restaurants ||
+          recommendedRestaurantData?.data?.restaurants ||
+          recommendedRestaurantData?.data ||
+          []
+    const restaurantMap = new Map(
+        recommendedRestaurants.map((restaurant) => [
+            Number(restaurant?.id),
+            restaurant,
+        ])
+    )
+    const popularItems = (popularFood || []).map((item) => ({
+        ...item,
+        restaurant:
+            item?.restaurant ||
+            restaurantMap.get(Number(item?.restaurant_id)) ||
+            null,
+    }))
+
+    const handleOpenAuth = () => {
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('nobo:auth-required', {
+                detail: { reason: 'site' },
+            }))
+        }
+    }
 
     return (
         <PushNotificationLayout>
+            {!authToken ? (
+                <PremiumHomeShell>
+                    <PremiumHeader configData={configData} />
+                    <Box sx={{ maxWidth: 760, mx: 'auto', px: 'clamp(18px, 5vw, 40px)', py: { xs: 8, md: 12 }, textAlign: 'center' }}>
+                        <Stack spacing={2.2} alignItems="center">
+                            <Typography component="h1" sx={{ color: '#F6EFE5', fontFamily: 'var(--font-heading)', fontSize: { xs: '2.4rem', md: '3.2rem' }, lineHeight: 1.05, fontWeight: 700 }}>
+                                Sign in to use NOBO
+                            </Typography>
+                            <Typography sx={{ color: 'rgba(246,239,229,0.72)', fontSize: '1rem', lineHeight: 1.7, maxWidth: 560 }}>
+                                Create or sign in to your account to choose your location, view available restaurants, order meals, and use Lisa.
+                            </Typography>
+                            <Button
+                                onClick={handleOpenAuth}
+                                sx={{
+                                    minHeight: 48,
+                                    px: 3,
+                                    borderRadius: 999,
+                                    color: '#07111F',
+                                    background: '#E5AE36',
+                                    fontWeight: 800,
+                                }}
+                            >
+                                Login or create account
+                            </Button>
+                        </Stack>
+                    </Box>
+                </PremiumHomeShell>
+            ) : (
+            <>
             {isSearchMode ? (
                 <>
                     <PremiumHomeShell>
@@ -352,24 +456,28 @@ const Homes = ({ configData }) => {
                     </PremiumHomeShell>
                 </>
             ) : (
-                <PremiumHomeShell>
+                    <PremiumHomeShell>
                     <PremiumHeader configData={configData} />
                     <ConciergeHero configData={configData} />
                     <CuratedRail
                         title="For this moment"
                         subtitle="Curated picks, just for you."
-                        items={popularFood}
+                        items={popularItems}
                         variant="meal"
+                        hasLocation={hasLocation}
                     />
                     <MinimalCategoryRail />
                     <CuratedRail
                         title="Near you"
                         subtitle="Top-rated restaurants close by."
-                        items={bestReviewedFoods}
+                        items={recommendedRestaurants}
                         variant="restaurant"
+                        hasLocation={hasLocation}
                     />
                     <FloatingBasketPill />
                 </PremiumHomeShell>
+            )}
+            </>
             )}
 
             <CustomModal
