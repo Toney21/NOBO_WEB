@@ -11,6 +11,29 @@ import {
 } from '@/utils/lisaBackend'
 import PremiumMediaImage from './PremiumMediaImage'
 
+const titleCase = (value = '') =>
+    String(value)
+        .replace(/[_-]+/g, ' ')
+        .trim()
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+
+const asList = (value) => {
+    if (Array.isArray(value)) {
+        return value
+            .map((item) => String(item || '').trim())
+            .filter(Boolean)
+    }
+
+    if (typeof value === 'string') {
+        return value
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean)
+    }
+
+    return []
+}
+
 const ConciergeHero = ({ configData }) => {
     const theme = useTheme()
     const router = useRouter()
@@ -22,6 +45,16 @@ const ConciergeHero = ({ configData }) => {
         configData?.lisa_avatar_full_url ||
         '/static/lisa/lisa-profile.png'
     const firstName = userData?.f_name || userData?.name?.split(' ')?.[0] || ''
+    const profileChips = asList(lisaPick?.profileTags).slice(0, 3)
+    const previewTitle =
+        lisaPick?.title ||
+        (profileChips[0]
+            ? `${titleCase(profileChips[0])} pick for your profile`
+            : 'A meal picked around you')
+    const previewDetail =
+        lisaPick?.detail ||
+        'Lisa uses your profile, order rhythm, timing, and saved preferences to prepare one focused recommendation.'
+    const previewMeta = [lisaPick?.restaurant, lisaPick?.eta].filter(Boolean)
 
     useEffect(() => {
         let isMounted = true
@@ -29,12 +62,23 @@ const ConciergeHero = ({ configData }) => {
         fetchLisaControllerState()
             .then((state) => {
                 const content = state?.homeContent || {}
+                const profile = state?.profile || {}
                 const title = content?.today_pick_title?.trim()
+                const tags = [
+                    ...asList(content?.recommendation_profile_tags),
+                    ...asList(content?.taste_tags),
+                    ...asList(profile?.preferred_cuisines),
+                    ...asList(profile?.favorite_cuisines),
+                    profile?.dietary_preference,
+                    profile?.goal_type,
+                ]
+                    .map((item) => String(item || '').trim())
+                    .filter((item) => item && item !== 'none')
 
-                if (!isMounted || !title) return
+                if (!isMounted) return
 
                 setLisaPick({
-                    title,
+                    title: title || '',
                     detail: content?.today_pick_detail?.trim() || '',
                     image: content?.today_pick_image_url?.trim() || '',
                     restaurant:
@@ -43,6 +87,7 @@ const ConciergeHero = ({ configData }) => {
                     confidence:
                         content?.recommendation_confidence_label?.trim() || '',
                     eta: content?.recommendation_eta_label?.trim() || '',
+                    profileTags: tags,
                 })
             })
             .catch(() => {})
@@ -106,7 +151,7 @@ const ConciergeHero = ({ configData }) => {
                                 px: 3.2,
                                 borderRadius: 1.5,
                                 background: '#E5AE36',
-                                color: noboPremium.color.navy900,
+                                color: `${noboPremium.color.navy900} !important`,
                                 fontWeight: 800,
                                 '&:hover': {
                                     boxShadow: noboPremium.shadow.goldGlow,
@@ -169,7 +214,17 @@ const ConciergeHero = ({ configData }) => {
                             </Box>
                         </Stack>
                         <Box
+                            component="button"
+                            type="button"
+                            onClick={() =>
+                                openLisaExperience('home', {
+                                    forceRefreshProfile: false,
+                                })
+                            }
+                            aria-label="Open Lisa recommendation preview"
                             sx={{
+                                width: '100%',
+                                textAlign: 'left',
                                 display: 'grid',
                                 gridTemplateColumns: lisaPick?.image
                                     ? { xs: '88px 1fr', sm: '116px 1fr' }
@@ -181,6 +236,12 @@ const ConciergeHero = ({ configData }) => {
                                 maxWidth: 520,
                                 overflow: 'hidden',
                                 p: lisaPick?.image ? 0 : 2.1,
+                                cursor: 'pointer',
+                                transition: `transform ${noboPremium.motion.fast} ${noboPremium.motion.ease}, box-shadow ${noboPremium.motion.fast} ${noboPremium.motion.ease}`,
+                                '&:hover': {
+                                    transform: 'translateY(-1px)',
+                                    boxShadow: noboPremium.shadow.goldGlow,
+                                },
                             }}
                         >
                             {lisaPick?.image && (
@@ -194,7 +255,7 @@ const ConciergeHero = ({ configData }) => {
                                 >
                                     <PremiumMediaImage
                                         src={lisaPick.image}
-                                        alt={lisaPick.title}
+                                        alt={previewTitle}
                                         sizes="116px"
                                         priority
                                     />
@@ -209,44 +270,56 @@ const ConciergeHero = ({ configData }) => {
                                 }}
                             >
                                 <Typography sx={{ color: noboPremium.color.gold500, fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase' }}>
-                                    {lisaPick ? "Lisa's pick for you" : 'Optional shortcut'}
+                                    Lisa recommendation preview
                                 </Typography>
-                                {lisaPick ? (
-                                    <>
-                                        <Typography noWrap sx={{ color: isLight ? noboPremium.color.navy900 : noboPremium.color.ivory, fontSize: '1rem', fontWeight: 800 }}>
-                                            {lisaPick.title}
-                                        </Typography>
-                                        <Typography noWrap sx={{ color: isLight ? '#77716B' : noboPremium.color.textMutedDark, fontSize: '0.76rem' }}>
-                                            {[lisaPick.restaurant, lisaPick.eta]
-                                                .filter(Boolean)
-                                                .join(' · ')}
-                                        </Typography>
-                                        <Stack direction="row" spacing={1} alignItems="center">
-                                            {lisaPick.confidence && (
-                                                <Typography sx={{ color: noboPremium.color.gold500, fontSize: '0.72rem', fontWeight: 800 }}>
-                                                    {lisaPick.confidence}
-                                                </Typography>
-                                            )}
-                                            {lisaPick.price > 0 && (
-                                                <Typography sx={{ color: isLight ? '#77716B' : noboPremium.color.textMutedDark, fontSize: '0.72rem' }}>
-                                                    KSh {lisaPick.price.toLocaleString()}
-                                                </Typography>
-                                            )}
-                                        </Stack>
-                                    </>
-                                ) : (
-                                    <Typography sx={{ color: isLight ? '#77716B' : noboPremium.color.textMutedDark, fontSize: '0.76rem' }}>
-                                        Keep browsing freely, or let Lisa open one curated suggestion.
+                                <Typography noWrap sx={{ color: isLight ? noboPremium.color.navy900 : noboPremium.color.ivory, fontSize: '1rem', fontWeight: 800 }}>
+                                    {previewTitle}
+                                </Typography>
+                                {previewMeta.length > 0 && (
+                                    <Typography noWrap sx={{ color: isLight ? '#77716B' : noboPremium.color.textMutedDark, fontSize: '0.76rem' }}>
+                                        {previewMeta.join(' | ')}
                                     </Typography>
                                 )}
+                                <Typography sx={{ color: isLight ? '#77716B' : noboPremium.color.textMutedDark, fontSize: '0.76rem', lineHeight: 1.45 }}>
+                                    {previewDetail}
+                                </Typography>
+                                {profileChips.length > 0 && (
+                                    <Stack direction="row" spacing={0.7} useFlexGap flexWrap="wrap">
+                                        {profileChips.map((chip) => (
+                                            <Box
+                                                key={chip}
+                                                component="span"
+                                                sx={{
+                                                    borderRadius: 999,
+                                                    px: 1,
+                                                    py: 0.35,
+                                                    color: noboPremium.color.gold700,
+                                                    background: 'rgba(232,200,120,0.16)',
+                                                    fontSize: '0.68rem',
+                                                    fontWeight: 800,
+                                                }}
+                                            >
+                                                {titleCase(chip)}
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                )}
+                                <Stack direction="row" spacing={1} alignItems="center">
+                                    {lisaPick?.confidence && (
+                                        <Typography sx={{ color: noboPremium.color.gold500, fontSize: '0.72rem', fontWeight: 800 }}>
+                                            {lisaPick.confidence}
+                                        </Typography>
+                                    )}
+                                    {lisaPick?.price > 0 && (
+                                        <Typography sx={{ color: isLight ? '#77716B' : noboPremium.color.textMutedDark, fontSize: '0.72rem' }}>
+                                            KSh {lisaPick.price.toLocaleString()}
+                                        </Typography>
+                                    )}
+                                </Stack>
                                 <Box>
                                     <Button
-                                        onClick={() =>
-                                            openLisaExperience('home', {
-                                                forceRefreshProfile: false,
-                                            })
-                                        }
-                                        sx={{ mt: 0.5, minHeight: 34, px: 1.8, borderRadius: 1.3, background: '#E5AE36', color: noboPremium.color.navy900, fontSize: '0.76rem', fontWeight: 800 }}
+                                        component="span"
+                                        sx={{ mt: 0.5, minHeight: 34, px: 1.8, borderRadius: 1.3, background: '#E5AE36', color: `${noboPremium.color.navy900} !important`, fontSize: '0.76rem', fontWeight: 800 }}
                                     >
                                         View Lisa's pick
                                     </Button>

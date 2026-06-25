@@ -240,7 +240,7 @@ const PremiumHeader = ({ configData }) => {
                                         minHeight: 44,
                                         px: 2.2,
                                         borderRadius: noboPremium.radius.pill,
-                                        color: noboPremium.color.navy900,
+                                        color: `${noboPremium.color.navy900} !important`,
                                         background: '#E5AE36',
                                         fontWeight: 800,
                                     }}
@@ -255,7 +255,17 @@ const PremiumHeader = ({ configData }) => {
                         <PremiumSearchBar compact />
                     </Box>
 
-                    <Stack direction="row" spacing={1} useFlexGap sx={{ display: { xs: 'flex', md: 'none' }, overflowX: 'auto', pb: 0.2 }}>
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        useFlexGap
+                        sx={{
+                            display: { xs: 'flex', md: 'none' },
+                            flexWrap: 'wrap',
+                            overflowX: 'visible',
+                            pb: 0.2,
+                        }}
+                    >
                         {['Ask Lisa', 'Usual order', 'Nearby', 'Quick lunch'].map((label, index) => (
                             <Button
                                 key={label}
@@ -278,6 +288,11 @@ const PremiumHeader = ({ configData }) => {
                                                 : 'rgba(255,255,255,0.06)',
                                     border: index === 0 ? 0 : '1px solid rgba(232,200,120,0.14)',
                                     fontWeight: 700,
+                                    '&, &:hover': {
+                                        color: index === 0
+                                            ? `${noboPremium.color.navy900} !important`
+                                            : undefined,
+                                    },
                                 }}
                             >
                                 {label}

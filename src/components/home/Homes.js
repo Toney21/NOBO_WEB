@@ -75,6 +75,7 @@ import ConciergeHero from './premium/ConciergeHero'
 import CuratedRail from './premium/CuratedRail'
 import MinimalCategoryRail from './premium/MinimalCategoryRail'
 import FloatingBasketPill from './premium/FloatingBasketPill'
+import { noboPremium } from '@/theme/nobo-premium-tokens'
 
 const Homes = ({ configData }) => {
     const theme = useTheme()
@@ -335,10 +336,10 @@ const Homes = ({ configData }) => {
                     <PremiumHeader configData={configData} />
                     <Box sx={{ maxWidth: 760, mx: 'auto', px: 'clamp(18px, 5vw, 40px)', py: { xs: 8, md: 12 }, textAlign: 'center' }}>
                         <Stack spacing={2.2} alignItems="center">
-                            <Typography component="h1" sx={{ color: '#F6EFE5', fontFamily: 'var(--font-heading)', fontSize: { xs: '2.4rem', md: '3.2rem' }, lineHeight: 1.05, fontWeight: 700 }}>
+                            <Typography component="h1" sx={{ color: noboPremium.color.navy900, fontFamily: 'var(--font-heading)', fontSize: { xs: '2.4rem', md: '3.2rem' }, lineHeight: 1.05, fontWeight: 700 }}>
                                 Sign in to use NOBO
                             </Typography>
-                            <Typography sx={{ color: 'rgba(246,239,229,0.72)', fontSize: '1rem', lineHeight: 1.7, maxWidth: 560 }}>
+                            <Typography sx={{ color: 'rgba(7,17,31,0.68)', fontSize: '1rem', lineHeight: 1.7, maxWidth: 560 }}>
                                 Create or sign in to your account to choose your location, view available restaurants, order meals, and use Lisa.
                             </Typography>
                             <Button
@@ -347,7 +348,7 @@ const Homes = ({ configData }) => {
                                     minHeight: 48,
                                     px: 3,
                                     borderRadius: 999,
-                                    color: '#07111F',
+                                    color: `${noboPremium.color.navy900} !important`,
                                     background: '#E5AE36',
                                     fontWeight: 800,
                                 }}

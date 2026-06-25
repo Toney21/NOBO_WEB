@@ -36,11 +36,11 @@ const Statistics = () => {
                 }}
             >
                 <Stack
-                    direction="row"
-                    gap={2}
+                    direction={{ xs: 'column', sm: 'row' }}
+                    gap={{ xs: 1.4, sm: 2 }}
                     pb={3}
                     sx={{
-                        overflowX: 'auto',
+                        overflowX: { xs: 'visible', sm: 'auto' },
                         '&::-webkit-scrollbar': { display: 'none' },
                     }}
                 >
@@ -52,8 +52,8 @@ const Statistics = () => {
                                 backgroundColor: theme.palette.background.paper,
                                 borderRadius: '8px',
                                 boxShadow: '0 5px 20px rgba(0, 0, 0, 0.1)',
-                                flex: { xs: '1 0 240px', md: '1 0 260px' },
-                                minWidth: { xs: '240px', sm: '260px' },
+                                flex: { xs: '1 1 auto', sm: '1 0 240px', md: '1 0 260px' },
+                                minWidth: { xs: 0, sm: '240px', md: '260px' },
                             }}
                         >
                             <Stack direction="row" alignItems="center" gap={1.5}>
